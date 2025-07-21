@@ -1,0 +1,26 @@
+# Unity generated files
+[Linha resumida — essencial para Unity]
+Build/
+Library/
+Temp/
+Obj/
+[Bee]
+[Bee artefatos]
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+sysinfo.txt
+*.apk
+*.aab
