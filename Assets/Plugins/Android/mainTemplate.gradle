@@ -1,20 +1,19 @@
 apply plugin: 'com.android.library'
-**APPLY_PLUGINS**
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     
     // Substitui o antigo support-v4 pelo androidx moderno
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-
-**DEPS**
 }
 
 android {
     namespace "com.unity3d.player"
-    ndkPath "**NDKPATH**"
-    compileSdkVersion **APIVERSION**
-    buildToolsVersion '**BUILDTOOLS**'
+    // Ajuste esse caminho para o seu NDK local, se necessário
+    ndkPath "C:/Android/ndk" 
+    
+    compileSdkVersion 34
+    buildToolsVersion '34.0.0'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -22,14 +21,14 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion **MINSDKVERSION**
-        targetSdkVersion **TARGETSDKVERSION**
+        minSdkVersion 21
+        targetSdkVersion 34
         ndk {
-            abiFilters **ABIFILTERS**
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
-        versionCode **VERSIONCODE**
-        versionName '**VERSIONNAME**'
-        consumerProguardFiles 'proguard-unity.txt'**USER_PROGUARD**
+        versionCode 1
+        versionName "1.0"
+        consumerProguardFiles 'proguard-unity.txt'
     }
 
     lintOptions {
@@ -37,10 +36,17 @@ android {
     }
 
     aaptOptions {
-        noCompress = **BUILTIN_NOCOMPRESS** + unityStreamingAssets.tokenize(', ')
-        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
-    }**PACKAGING_OPTIONS**
+    noCompress += unityStreamingAssets.tokenize(', ')
+    ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }
+
+
+    packagingOptions {
+        // Exclui libs duplicadas que podem causar conflito
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
-**IL_CPP_BUILD_SETUP**
-**SOURCE_BUILD_SETUP**
-**EXTERNAL_SOURCES**
