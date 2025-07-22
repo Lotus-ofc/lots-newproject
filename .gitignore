@@ -24,3 +24,7 @@ Obj/
 sysinfo.txt
 *.apk
 *.aab
+
+# Firebase huge libs
+Assets/Firebase/Plugins/x86_64/FirebaseCppApp-*.so
+Assets/Firebase/Plugins/x86_64/FirebaseCppApp-*.bundle
