@@ -10,7 +10,6 @@ public class SceneFlowManager : MonoBehaviour
     public GameObject loginPanel;
     public GameObject registerPanel;
     public GameObject mainMenuPanel;
-    public GameObject gameplayPanel;
 
     [Header("Fade")]
     public FadeController fadeController;
@@ -21,13 +20,13 @@ public class SceneFlowManager : MonoBehaviour
     [Header("Login Inputs")]
     public TMP_InputField loginEmailInput;
     public TMP_InputField loginPasswordInput;
-    public Image loginErrorImage;  // Imagem vermelha que aparece quando erro
+    public Image loginErrorImage;
 
     [Header("Login Buttons")]
     public Button loginButton;
     public Button loginBackButton;
     public Button forgotPasswordButton;
-    public Button loginTogglePasswordVisibilityButton; // botão olho
+    public Button loginTogglePasswordVisibilityButton;
 
     [Header("Register Inputs")]
     public TMP_InputField registerEmailInput;
@@ -37,10 +36,20 @@ public class SceneFlowManager : MonoBehaviour
     [Header("Register Buttons")]
     public Button registerButton;
     public Button registerBackButton;
-    public Button registerTogglePasswordVisibilityButton1; // olho senha
-    public Button registerTogglePasswordVisibilityButton2; // olho confirmar senha
+    public Button registerTogglePasswordVisibilityButton1;
+    public Button registerTogglePasswordVisibilityButton2;
 
-    // Controle de visibilidade das senhas
+    [Header("Sprites Olho")]
+    public Sprite eyeOpenSprite;
+    public Sprite eyeClosedSprite;
+
+    [Header("Login Toggle Image")]
+    public Image loginTogglePasswordImage;
+
+    [Header("Register Toggle Images")]
+    public Image registerTogglePasswordImage1;
+    public Image registerTogglePasswordImage2;
+
     private bool isLoginPasswordVisible = false;
     private bool isRegisterPasswordVisible = false;
     private bool isRegisterConfirmPasswordVisible = false;
@@ -63,7 +72,6 @@ public class SceneFlowManager : MonoBehaviour
         ShowMainMenuPanel();
         mensagemFeedback.text = "";
 
-        // Ativa listeners dos botões
         loginButton.onClick.AddListener(OnLoginButtonClicked);
         loginBackButton.onClick.AddListener(ShowMainMenuPanel);
         forgotPasswordButton.onClick.AddListener(OnForgotPasswordClicked);
@@ -74,10 +82,8 @@ public class SceneFlowManager : MonoBehaviour
         registerTogglePasswordVisibilityButton1.onClick.AddListener(ToggleRegisterPasswordVisibility);
         registerTogglePasswordVisibilityButton2.onClick.AddListener(ToggleRegisterConfirmPasswordVisibility);
 
-        // Esconde imagem de erro no início
         if (loginErrorImage != null) loginErrorImage.gameObject.SetActive(false);
 
-        // Garanta que os inputs com senha estejam no modo password oculto no início
         SetInputFieldPasswordMode(loginPasswordInput, false);
         SetInputFieldPasswordMode(registerPasswordInput, false);
         SetInputFieldPasswordMode(registerConfirmPasswordInput, false);
@@ -89,7 +95,6 @@ public class SceneFlowManager : MonoBehaviour
         loginPanel.SetActive(true);
         registerPanel.SetActive(false);
         mainMenuPanel.SetActive(false);
-        gameplayPanel.SetActive(false);
         ClearLoginFields();
         ClearFeedback();
     }
@@ -99,7 +104,6 @@ public class SceneFlowManager : MonoBehaviour
         loginPanel.SetActive(false);
         registerPanel.SetActive(true);
         mainMenuPanel.SetActive(false);
-        gameplayPanel.SetActive(false);
         ClearRegisterFields();
         ClearFeedback();
     }
@@ -109,17 +113,15 @@ public class SceneFlowManager : MonoBehaviour
         loginPanel.SetActive(false);
         registerPanel.SetActive(false);
         mainMenuPanel.SetActive(true);
-        gameplayPanel.SetActive(false);
         ClearFeedback();
     }
 
-    public void ShowGameplayPanel()
+    public void GoToGameplayScene()
     {
-        loginPanel.SetActive(false);
-        registerPanel.SetActive(false);
-        mainMenuPanel.SetActive(false);
-        gameplayPanel.SetActive(true);
-        ClearFeedback();
+        fadeController.FadeOut(() =>
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("01_Gameplay");
+        });
     }
     #endregion
 
@@ -128,7 +130,6 @@ public class SceneFlowManager : MonoBehaviour
     {
         if (mensagemFeedback != null)
         {
-            // Remove caracteres especiais: só deixa letras, números, espaço e pontuação básica
             string cleanMessage = System.Text.RegularExpressions.Regex.Replace(message, @"[^a-zA-Z0-9 .,]", "");
             mensagemFeedback.text = cleanMessage;
         }
@@ -142,7 +143,6 @@ public class SceneFlowManager : MonoBehaviour
     #endregion
 
     #region Login Methods
-
     private void ClearLoginFields()
     {
         if (loginEmailInput != null) loginEmailInput.text = "";
@@ -150,18 +150,18 @@ public class SceneFlowManager : MonoBehaviour
         if (loginErrorImage != null) loginErrorImage.gameObject.SetActive(false);
         isLoginPasswordVisible = false;
         SetInputFieldPasswordMode(loginPasswordInput, false);
+        UpdateToggleIcon(loginTogglePasswordImage, isLoginPasswordVisible);
     }
 
     private void ToggleLoginPasswordVisibility()
     {
         isLoginPasswordVisible = !isLoginPasswordVisible;
         SetInputFieldPasswordMode(loginPasswordInput, isLoginPasswordVisible);
-        UpdateToggleIcon(loginTogglePasswordVisibilityButton, isLoginPasswordVisible);
+        UpdateToggleIcon(loginTogglePasswordImage, isLoginPasswordVisible);
     }
 
     private void OnLoginButtonClicked()
     {
-        // Aqui validações iniciais
         if (string.IsNullOrEmpty(loginEmailInput.text) || string.IsNullOrEmpty(loginPasswordInput.text))
         {
             ShowFeedback("Preencha email e senha");
@@ -172,22 +172,18 @@ public class SceneFlowManager : MonoBehaviour
 
         ClearFeedback();
 
-        // TODO: Implementar login Firebase aqui
-        // Exemplo: FirebaseLogin(loginEmailInput.text, loginPasswordInput.text);
-
-        ShowFeedback("Tentando logar..."); // feedback temporário
+        // TODO: Firebase login
+        ShowFeedback("Tentando logar...");
     }
 
     private void OnForgotPasswordClicked()
     {
         ClearFeedback();
-        // TODO: Implementar ação "Esqueci minha senha"
         ShowFeedback("Funcionalidade em desenvolvimento");
     }
     #endregion
 
     #region Register Methods
-
     private void ClearRegisterFields()
     {
         if (registerEmailInput != null) registerEmailInput.text = "";
@@ -197,25 +193,26 @@ public class SceneFlowManager : MonoBehaviour
         isRegisterConfirmPasswordVisible = false;
         SetInputFieldPasswordMode(registerPasswordInput, false);
         SetInputFieldPasswordMode(registerConfirmPasswordInput, false);
+        UpdateToggleIcon(registerTogglePasswordImage1, isRegisterPasswordVisible);
+        UpdateToggleIcon(registerTogglePasswordImage2, isRegisterConfirmPasswordVisible);
     }
 
     private void ToggleRegisterPasswordVisibility()
     {
         isRegisterPasswordVisible = !isRegisterPasswordVisible;
         SetInputFieldPasswordMode(registerPasswordInput, isRegisterPasswordVisible);
-        UpdateToggleIcon(registerTogglePasswordVisibilityButton1, isRegisterPasswordVisible);
+        UpdateToggleIcon(registerTogglePasswordImage1, isRegisterPasswordVisible);
     }
 
     private void ToggleRegisterConfirmPasswordVisibility()
     {
         isRegisterConfirmPasswordVisible = !isRegisterConfirmPasswordVisible;
         SetInputFieldPasswordMode(registerConfirmPasswordInput, isRegisterConfirmPasswordVisible);
-        UpdateToggleIcon(registerTogglePasswordVisibilityButton2, isRegisterConfirmPasswordVisible);
+        UpdateToggleIcon(registerTogglePasswordImage2, isRegisterConfirmPasswordVisible);
     }
 
     private void OnRegisterButtonClicked()
     {
-        // Validações simples
         if (string.IsNullOrEmpty(registerEmailInput.text) ||
             string.IsNullOrEmpty(registerPasswordInput.text) ||
             string.IsNullOrEmpty(registerConfirmPasswordInput.text))
@@ -232,13 +229,12 @@ public class SceneFlowManager : MonoBehaviour
 
         ClearFeedback();
 
-        // TODO: Implementar registro Firebase aqui
+        // TODO: Firebase register
         ShowFeedback("Tentando registrar...");
     }
     #endregion
 
     #region Helpers
-
     private void SetInputFieldPasswordMode(TMP_InputField inputField, bool visible)
     {
         if (inputField == null) return;
@@ -247,17 +243,11 @@ public class SceneFlowManager : MonoBehaviour
         inputField.ForceLabelUpdate();
     }
 
-    private void UpdateToggleIcon(Button toggleButton, bool visible)
+    private void UpdateToggleIcon(Image iconImage, bool visible)
     {
-        if (toggleButton == null) return;
+        if (iconImage == null || eyeOpenSprite == null || eyeClosedSprite == null) return;
 
-        var image = toggleButton.GetComponent<Image>();
-        if (image == null) return;
-
-        // Troque aqui pelos sprites que você tiver do olho aberto/fechado
-        // Por enquanto só muda a cor como exemplo
-        image.color = visible ? Color.green : Color.white;
+        iconImage.sprite = visible ? eyeOpenSprite : eyeClosedSprite;
     }
-
     #endregion
 }
