@@ -2,44 +2,57 @@ using UnityEngine;
 
 public class FadeController : MonoBehaviour
 {
-    [Header("Configurações")]
+    [Header("Fade Settings")]
     public CanvasGroup fadeCanvasGroup;
     public float fadeDuration = 0.5f;
 
-    void Awake()
+    private void Awake()
     {
-        DontDestroyOnLoad(gameObject); // Mantém entre cenas
-        if (fadeCanvasGroup != null)
-            fadeCanvasGroup.alpha = 0; // Garante que começa invisível
+        if (fadeCanvasGroup == null)
+        {
+            Debug.LogError("FadeController: CanvasGroup não atribuído!");
+        }
+
+        // Começa invisível e inativo
+        fadeCanvasGroup.alpha = 0f;
+        gameObject.SetActive(false);
     }
 
-    /// <summary>
-    /// Faz o fade in (desaparecer) e desativa o objeto ao terminar.
-    /// </summary>
-    public void FadeIn()
+    // Faz fade escurecendo e executa ação depois
+    public void FadeOut(System.Action onComplete = null)
     {
-        if (fadeCanvasGroup == null) return;
-
         gameObject.SetActive(true);
-        fadeCanvasGroup.alpha = 1;
-
-        LeanTween.alphaCanvas(fadeCanvasGroup, 0, fadeDuration)
-            .setEase(LeanTweenType.easeOutQuad)
-            .setOnComplete(() => gameObject.SetActive(false));
+        fadeCanvasGroup.alpha = 0f;
+        LeanTween.alphaCanvas(fadeCanvasGroup, 1f, fadeDuration).setOnComplete(() =>
+        {
+            onComplete?.Invoke();
+        });
     }
 
-    /// <summary>
-    /// Faz o fade out (escurecer) e chama uma ação ao terminar.
-    /// </summary>
-    public void FadeOut(System.Action onComplete)
+    // Faz fade clareando e desativa o objeto no fim
+    public void FadeIn(System.Action onComplete = null)
     {
-        if (fadeCanvasGroup == null) return;
-
         gameObject.SetActive(true);
-        fadeCanvasGroup.alpha = 0;
+        fadeCanvasGroup.alpha = 1f;
+        LeanTween.alphaCanvas(fadeCanvasGroup, 0f, fadeDuration).setOnComplete(() =>
+        {
+            gameObject.SetActive(false);
+            onComplete?.Invoke();
+        });
+    }
 
-        LeanTween.alphaCanvas(fadeCanvasGroup, 1, fadeDuration)
-            .setEase(LeanTweenType.easeOutQuad)
-            .setOnComplete(() => onComplete?.Invoke());
+    // Método útil pra fade out + in sequenciais (não vamos usar aqui)
+    public void FadeOutIn(System.Action middleAction = null)
+    {
+        gameObject.SetActive(true);
+        fadeCanvasGroup.alpha = 0f;
+        LeanTween.alphaCanvas(fadeCanvasGroup, 1f, fadeDuration).setOnComplete(() =>
+        {
+            middleAction?.Invoke();
+            LeanTween.alphaCanvas(fadeCanvasGroup, 0f, fadeDuration).setOnComplete(() =>
+            {
+                gameObject.SetActive(false);
+            });
+        });
     }
 }

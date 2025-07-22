@@ -73,12 +73,12 @@ public class SceneFlowManager : MonoBehaviour
         mensagemFeedback.text = "";
 
         loginButton.onClick.AddListener(OnLoginButtonClicked);
-        loginBackButton.onClick.AddListener(ShowMainMenuPanel);
+        loginBackButton.onClick.AddListener(() => FadeToPanel(mainMenuPanel));
         forgotPasswordButton.onClick.AddListener(OnForgotPasswordClicked);
         loginTogglePasswordVisibilityButton.onClick.AddListener(ToggleLoginPasswordVisibility);
 
         registerButton.onClick.AddListener(OnRegisterButtonClicked);
-        registerBackButton.onClick.AddListener(ShowMainMenuPanel);
+        registerBackButton.onClick.AddListener(() => FadeToPanel(mainMenuPanel));
         registerTogglePasswordVisibilityButton1.onClick.AddListener(ToggleRegisterPasswordVisibility);
         registerTogglePasswordVisibilityButton2.onClick.AddListener(ToggleRegisterConfirmPasswordVisibility);
 
@@ -90,30 +90,35 @@ public class SceneFlowManager : MonoBehaviour
     }
 
     #region Painéis
-    public void ShowLoginPanel()
-    {
-        loginPanel.SetActive(true);
-        registerPanel.SetActive(false);
-        mainMenuPanel.SetActive(false);
-        ClearLoginFields();
-        ClearFeedback();
-    }
-
-    public void ShowRegisterPanel()
-    {
-        loginPanel.SetActive(false);
-        registerPanel.SetActive(true);
-        mainMenuPanel.SetActive(false);
-        ClearRegisterFields();
-        ClearFeedback();
-    }
-
-    public void ShowMainMenuPanel()
+    private void ShowOnlyPanel(GameObject panelToShow)
     {
         loginPanel.SetActive(false);
         registerPanel.SetActive(false);
-        mainMenuPanel.SetActive(true);
+        mainMenuPanel.SetActive(false);
+
+        if (panelToShow != null)
+        {
+            panelToShow.SetActive(true);
+        }
+
         ClearFeedback();
+    }
+
+    public void ShowLoginPanel() { ShowOnlyPanel(loginPanel); ClearLoginFields(); }
+    public void ShowRegisterPanel() { ShowOnlyPanel(registerPanel); ClearRegisterFields(); }
+    public void ShowMainMenuPanel() { ShowOnlyPanel(mainMenuPanel); }
+
+    public void FadeToPanel(GameObject targetPanel)
+    {
+        fadeController.FadeOut(() =>
+        {
+            ShowOnlyPanel(targetPanel);
+
+            if (targetPanel == loginPanel) ClearLoginFields();
+            else if (targetPanel == registerPanel) ClearRegisterFields();
+
+            fadeController.FadeIn();
+        });
     }
 
     public void GoToGameplayScene()
