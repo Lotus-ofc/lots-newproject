@@ -39,6 +39,9 @@ public class SceneFlowManager : MonoBehaviour
     public Button registerTogglePasswordVisibilityButton1;
     public Button registerTogglePasswordVisibilityButton2;
 
+    [Header("Logout Button (no main menu)")]
+    public Button logoutButton;
+
     [Header("Sprites Olho")]
     public Sprite eyeOpenSprite;
     public Sprite eyeClosedSprite;
@@ -67,20 +70,45 @@ public class SceneFlowManager : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        // Eventos Firebase
+        FirebaseManager.Instance.OnAuthFailed += OnFirebaseAuthFailed;
+        FirebaseManager.Instance.OnAuthSuccess += OnFirebaseAuthSuccess;
+        FirebaseManager.Instance.OnLogout += OnFirebaseLogout;
+    }
+
+    private void OnDisable()
+    {
+        // Desvincular eventos para evitar memory leaks
+        if (FirebaseManager.Instance != null)
+        {
+            FirebaseManager.Instance.OnAuthFailed -= OnFirebaseAuthFailed;
+            FirebaseManager.Instance.OnAuthSuccess -= OnFirebaseAuthSuccess;
+            FirebaseManager.Instance.OnLogout -= OnFirebaseLogout;
+        }
+    }
+
     private void Start()
     {
         ShowMainMenuPanel();
         mensagemFeedback.text = "";
 
+        // Login
         loginButton.onClick.AddListener(OnLoginButtonClicked);
         loginBackButton.onClick.AddListener(() => FadeToPanel(mainMenuPanel));
         forgotPasswordButton.onClick.AddListener(OnForgotPasswordClicked);
         loginTogglePasswordVisibilityButton.onClick.AddListener(ToggleLoginPasswordVisibility);
 
+        // Register
         registerButton.onClick.AddListener(OnRegisterButtonClicked);
         registerBackButton.onClick.AddListener(() => FadeToPanel(mainMenuPanel));
         registerTogglePasswordVisibilityButton1.onClick.AddListener(ToggleRegisterPasswordVisibility);
         registerTogglePasswordVisibilityButton2.onClick.AddListener(ToggleRegisterConfirmPasswordVisibility);
+
+        // Logout
+        if(logoutButton != null)
+            logoutButton.onClick.AddListener(OnLogoutButtonClicked);
 
         if (loginErrorImage != null) loginErrorImage.gameObject.SetActive(false);
 
@@ -177,14 +205,20 @@ public class SceneFlowManager : MonoBehaviour
 
         ClearFeedback();
 
-        // TODO: Firebase login
         ShowFeedback("Tentando logar...");
+        FirebaseManager.Instance.LoginUser(loginEmailInput.text, loginPasswordInput.text);
     }
 
     private void OnForgotPasswordClicked()
     {
+        if (string.IsNullOrEmpty(loginEmailInput.text))
+        {
+            ShowFeedback("Informe o email para resetar");
+            return;
+        }
         ClearFeedback();
-        ShowFeedback("Funcionalidade em desenvolvimento");
+        ShowFeedback("Enviando email de recuperação...");
+        FirebaseManager.Instance.SendPasswordResetEmail(loginEmailInput.text);
     }
     #endregion
 
@@ -234,8 +268,39 @@ public class SceneFlowManager : MonoBehaviour
 
         ClearFeedback();
 
-        // TODO: Firebase register
         ShowFeedback("Tentando registrar...");
+        FirebaseManager.Instance.RegisterUser(registerEmailInput.text, registerPasswordInput.text);
+    }
+    #endregion
+
+    #region Logout
+    private void OnLogoutButtonClicked()
+    {
+        FirebaseManager.Instance.Logout();
+    }
+
+    private void OnFirebaseLogout()
+    {
+        ShowFeedback("Usuário deslogado.");
+        FadeToPanel(mainMenuPanel);
+    }
+    #endregion
+
+    #region Firebase Events
+    private void OnFirebaseAuthFailed(string errorMessage)
+    {
+        ShowFeedback(errorMessage);
+        if (loginErrorImage != null)
+            loginErrorImage.gameObject.SetActive(true);
+    }
+
+    private void OnFirebaseAuthSuccess()
+    {
+        // Quando login ou registro ocorrer com sucesso, ir para o menu principal ou gameplay
+        ShowFeedback("");
+
+        // Exemplo: ao logar ou registrar, vai direto pra gameplay
+        GoToGameplayScene();
     }
     #endregion
 

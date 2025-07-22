@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "92760425096",
+    "project_id": "lots-b7526",
+    "storage_bucket": "lots-b7526.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92760425096:android:26aac705af57bb989f953d",
+        "android_client_info": {
+          "package_name": "com.Lotus.LotsNew"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmxjrPLXsvjb813q1r3U_i612YF4YxANY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
