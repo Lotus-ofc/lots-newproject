@@ -11,9 +11,9 @@ public class FirebaseManager : MonoBehaviour
     public FirebaseAuth Auth { get; private set; }
     public FirebaseUser User { get; private set; }
 
-    public event Action<string> OnAuthFailed;    // mensagem de erro
-    public event Action OnAuthSuccess;           // login ou registro ok
-    public event Action OnLogout;                 // logout efetuado
+    public event Action<string> OnAuthFailed; // Erro
+    public event Action OnAuthSuccess;        // Login ou registro com sucesso
+    public event Action OnLogout;             // Logout efetuado
 
     private void Awake()
     {
@@ -33,16 +33,16 @@ public class FirebaseManager : MonoBehaviour
     {
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
-            var dependencyStatus = task.Result;
-            if (dependencyStatus == DependencyStatus.Available)
+            var status = task.Result;
+            if (status == DependencyStatus.Available)
             {
                 Auth = FirebaseAuth.DefaultInstance;
                 User = Auth.CurrentUser;
-                Debug.Log("Firebase Auth inicializado.");
+                Debug.Log("✅ Firebase inicializado.");
             }
             else
             {
-                Debug.LogError($"Erro Firebase: {dependencyStatus}");
+                Debug.LogError($"❌ Firebase erro: {status}");
                 OnAuthFailed?.Invoke("Falha ao inicializar Firebase.");
             }
         });
@@ -61,14 +61,13 @@ public class FirebaseManager : MonoBehaviour
             if (task.IsFaulted || task.IsCanceled)
             {
                 string erro = GetFirebaseError(task.Exception);
-                Debug.LogError($"Erro Register: {erro}");
+                Debug.LogError($"❌ Erro ao registrar: {erro}");
                 OnAuthFailed?.Invoke(erro);
             }
             else
             {
-                User = task.Result.User;  // CORREÇÃO AQUI
-                Debug.Log("Usuário registrado com sucesso.");
-                OnAuthSuccess?.Invoke();
+                Debug.Log("✅ Usuário registrado com sucesso.");
+                // Nao invoca OnAuthSuccess aqui, pois nao queremos logar automaticamente
             }
         });
     }
@@ -91,9 +90,9 @@ public class FirebaseManager : MonoBehaviour
             }
             else
             {
-                User = task.Result.User;  // CORREÇÃO AQUI
+                User = task.Result.User;
                 Debug.Log("Usuário logado com sucesso.");
-                OnAuthSuccess?.Invoke();
+                OnAuthSuccess?.Invoke(); // Invoca OnAuthSuccess apos login bem-sucedido
             }
         });
     }
@@ -104,12 +103,12 @@ public class FirebaseManager : MonoBehaviour
         {
             Auth.SignOut();
             User = null;
-            Debug.Log("Usuário deslogado.");
+            Debug.Log("✅ Usuário deslogado.");
             OnLogout?.Invoke();
         }
         else
         {
-            Debug.LogWarning("Logout chamado sem usuário logado.");
+            Debug.LogWarning("⚠️ Logout chamado sem usuário logado.");
         }
     }
 
@@ -126,28 +125,55 @@ public class FirebaseManager : MonoBehaviour
             if (task.IsFaulted || task.IsCanceled)
             {
                 string erro = GetFirebaseError(task.Exception);
-                Debug.LogError($"Erro reset senha: {erro}");
+                Debug.LogError($"❌ Erro ao enviar email de reset: {erro}");
                 OnAuthFailed?.Invoke(erro);
             }
             else
             {
-                Debug.Log("Email de reset enviado com sucesso.");
-                OnAuthSuccess?.Invoke();
+                Debug.Log("✅ Email de redefinição enviado.");
+                OnAuthSuccess?.Invoke(); // Invoca OnAuthSuccess para feedback positivo
             }
         });
     }
 
     private string GetFirebaseError(AggregateException exception)
-    {
-        if (exception == null) return "Erro desconhecido.";
+{
+    if (exception == null) return "Erro desconhecido.";
 
-        foreach (var e in exception.Flatten().InnerExceptions)
+    foreach (var e in exception.Flatten().InnerExceptions)
+    {
+        if (e is FirebaseException firebaseEx)
         {
-            if (e is FirebaseException firebaseEx)
+            // Remove as linhas que causam o erro de compilação
+            // case AuthError.AccountExistsWithDifferentCredential:
+            // return "Já existe uma conta com esse e-mail usando outro método de login.";
+            // ... e qualquer outra que cause o mesmo erro.
+
+            // Você pode deixar as que funcionam, ou simplesmente usar o default:
+            switch ((AuthError)firebaseEx.ErrorCode)
             {
-                return firebaseEx.Message;
+                // Mantenha apenas as que sua versão do Firebase SDK suporta, ou...
+                // ... remova todas e use apenas o default para uma abordagem mais simples:
+                // case AuthError.WeakPassword:
+                //     return "A senha é muito fraca. Mínimo de 6 caracteres.";
+                // case AuthError.InvalidEmail:
+                //     return "Formato de e-mail inválido.";
+                // case AuthError.MissingEmail:
+                //     return "E-mail ausente.";
+                // case AuthError.NetworkRequestFailed:
+                //     return "Falha de rede. Verifique sua conexão com a internet.";
+                // case AuthError.TooManyRequests:
+                //     return "Muitas tentativas. Tente novamente mais tarde.";
+                // case AuthError.OperationNotAllowed:
+                //     return "Operação não permitida. Verifique suas configurações de autenticação no Firebase.";
+                // case AuthError.UserDisabled:
+                //     return "Sua conta foi desativada.";
+                default:
+                    // Mensagem genérica para outros erros, incluindo aqueles que não são reconhecidos
+                    return "Ocorreu um erro: " + firebaseEx.Message; // Use a mensagem original do Firebase
             }
         }
-        return "Erro desconhecido.";
     }
+    return "Erro desconhecido."; // Caso não seja uma FirebaseException ou não tenha InnerExceptions
+}
 }

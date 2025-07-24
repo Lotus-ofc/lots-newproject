@@ -10,48 +10,38 @@ public class SceneFlowManager : MonoBehaviour
     public GameObject loginPanel;
     public GameObject registerPanel;
     public GameObject mainMenuPanel;
-
-    [Header("Fade")]
-    public FadeController fadeController;
+    public GameObject gameplayPanel;
 
     [Header("Feedback")]
     public TextMeshProUGUI mensagemFeedback;
 
-    [Header("Login Inputs")]
+    [Header("Login")]
     public TMP_InputField loginEmailInput;
     public TMP_InputField loginPasswordInput;
     public Image loginErrorImage;
-
-    [Header("Login Buttons")]
     public Button loginButton;
     public Button loginBackButton;
     public Button forgotPasswordButton;
     public Button loginTogglePasswordVisibilityButton;
+    public Image loginTogglePasswordImage;
 
-    [Header("Register Inputs")]
+    [Header("Register")]
     public TMP_InputField registerEmailInput;
     public TMP_InputField registerPasswordInput;
     public TMP_InputField registerConfirmPasswordInput;
-
-    [Header("Register Buttons")]
     public Button registerButton;
     public Button registerBackButton;
     public Button registerTogglePasswordVisibilityButton1;
     public Button registerTogglePasswordVisibilityButton2;
-
-    [Header("Logout Button (no main menu)")]
-    public Button logoutButton;
-
-    [Header("Sprites Olho")]
-    public Sprite eyeOpenSprite;
-    public Sprite eyeClosedSprite;
-
-    [Header("Login Toggle Image")]
-    public Image loginTogglePasswordImage;
-
-    [Header("Register Toggle Images")]
     public Image registerTogglePasswordImage1;
     public Image registerTogglePasswordImage2;
+
+    [Header("Logout")]
+    public Button logoutButton;
+
+    [Header("Sprites")]
+    public Sprite eyeOpenSprite;
+    public Sprite eyeClosedSprite;
 
     private bool isLoginPasswordVisible = false;
     private bool isRegisterPasswordVisible = false;
@@ -63,6 +53,7 @@ public class SceneFlowManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            Debug.Log("SceneFlowManager criado.");
         }
         else
         {
@@ -70,17 +61,45 @@ public class SceneFlowManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        mensagemFeedback.text = "";
+
+        ShowMainMenuPanel();
+
+        // Eventos
+        loginButton.onClick.AddListener(OnLoginButtonClicked);
+        loginBackButton.onClick.AddListener(ShowMainMenuPanel);
+        forgotPasswordButton.onClick.AddListener(OnForgotPasswordClicked);
+        loginTogglePasswordVisibilityButton.onClick.AddListener(ToggleLoginPasswordVisibility);
+
+        registerButton.onClick.AddListener(OnRegisterButtonClicked);
+        registerBackButton.onClick.AddListener(ShowMainMenuPanel);
+        registerTogglePasswordVisibilityButton1.onClick.AddListener(ToggleRegisterPasswordVisibility);
+        registerTogglePasswordVisibilityButton2.onClick.AddListener(ToggleRegisterConfirmPasswordVisibility);
+
+        if (logoutButton != null)
+            logoutButton.onClick.AddListener(OnLogoutButtonClicked);
+
+        ResetFields();
+    }
+
     private void OnEnable()
     {
-        // Eventos Firebase
-        FirebaseManager.Instance.OnAuthFailed += OnFirebaseAuthFailed;
-        FirebaseManager.Instance.OnAuthSuccess += OnFirebaseAuthSuccess;
-        FirebaseManager.Instance.OnLogout += OnFirebaseLogout;
+        if (FirebaseManager.Instance != null)
+        {
+            FirebaseManager.Instance.OnAuthFailed += OnFirebaseAuthFailed;
+            FirebaseManager.Instance.OnAuthSuccess += OnFirebaseAuthSuccess;
+            FirebaseManager.Instance.OnLogout += OnFirebaseLogout;
+        }
+        else
+        {
+            Debug.LogError("FirebaseManager.Instance é nulo no OnEnable!");
+        }
     }
 
     private void OnDisable()
     {
-        // Desvincular eventos para evitar memory leaks
         if (FirebaseManager.Instance != null)
         {
             FirebaseManager.Instance.OnAuthFailed -= OnFirebaseAuthFailed;
@@ -89,122 +108,44 @@ public class SceneFlowManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        ShowMainMenuPanel();
-        mensagemFeedback.text = "";
-
-        // Login
-        loginButton.onClick.AddListener(OnLoginButtonClicked);
-        loginBackButton.onClick.AddListener(() => FadeToPanel(mainMenuPanel));
-        forgotPasswordButton.onClick.AddListener(OnForgotPasswordClicked);
-        loginTogglePasswordVisibilityButton.onClick.AddListener(ToggleLoginPasswordVisibility);
-
-        // Register
-        registerButton.onClick.AddListener(OnRegisterButtonClicked);
-        registerBackButton.onClick.AddListener(() => FadeToPanel(mainMenuPanel));
-        registerTogglePasswordVisibilityButton1.onClick.AddListener(ToggleRegisterPasswordVisibility);
-        registerTogglePasswordVisibilityButton2.onClick.AddListener(ToggleRegisterConfirmPasswordVisibility);
-
-        // Logout
-        if(logoutButton != null)
-            logoutButton.onClick.AddListener(OnLogoutButtonClicked);
-
-        if (loginErrorImage != null) loginErrorImage.gameObject.SetActive(false);
-
-        SetInputFieldPasswordMode(loginPasswordInput, false);
-        SetInputFieldPasswordMode(registerPasswordInput, false);
-        SetInputFieldPasswordMode(registerConfirmPasswordInput, false);
-    }
-
-    #region Painéis
-    private void ShowOnlyPanel(GameObject panelToShow)
+    #region Panels
+    private void ShowOnlyPanel(GameObject panel)
     {
         loginPanel.SetActive(false);
         registerPanel.SetActive(false);
         mainMenuPanel.SetActive(false);
+        gameplayPanel.SetActive(false);
 
-        if (panelToShow != null)
-        {
-            panelToShow.SetActive(true);
-        }
+        if (panel != null)
+            panel.SetActive(true);
 
         ClearFeedback();
     }
 
-    public void ShowLoginPanel() { ShowOnlyPanel(loginPanel); ClearLoginFields(); }
-    public void ShowRegisterPanel() { ShowOnlyPanel(registerPanel); ClearRegisterFields(); }
-    public void ShowMainMenuPanel() { ShowOnlyPanel(mainMenuPanel); }
-
-    public void FadeToPanel(GameObject targetPanel)
+    public void ShowMainMenuPanel() => ShowOnlyPanel(mainMenuPanel);
+    public void ShowLoginPanel()
     {
-        fadeController.FadeOut(() =>
-        {
-            ShowOnlyPanel(targetPanel);
-
-            if (targetPanel == loginPanel) ClearLoginFields();
-            else if (targetPanel == registerPanel) ClearRegisterFields();
-
-            fadeController.FadeIn();
-        });
+        ShowOnlyPanel(loginPanel);
+        ResetFields();
     }
-
-    public void GoToGameplayScene()
+    public void ShowRegisterPanel()
     {
-        fadeController.FadeOut(() =>
-        {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("01_Gameplay");
-        });
+        ShowOnlyPanel(registerPanel);
+        ResetFields();
     }
     #endregion
 
-    #region Feedback
-    public void ShowFeedback(string message)
-    {
-        if (mensagemFeedback != null)
-        {
-            string cleanMessage = System.Text.RegularExpressions.Regex.Replace(message, @"[^a-zA-Z0-9 .,]", "");
-            mensagemFeedback.text = cleanMessage;
-        }
-    }
-
-    public void ClearFeedback()
-    {
-        if (mensagemFeedback != null)
-            mensagemFeedback.text = "";
-    }
-    #endregion
-
-    #region Login Methods
-    private void ClearLoginFields()
-    {
-        if (loginEmailInput != null) loginEmailInput.text = "";
-        if (loginPasswordInput != null) loginPasswordInput.text = "";
-        if (loginErrorImage != null) loginErrorImage.gameObject.SetActive(false);
-        isLoginPasswordVisible = false;
-        SetInputFieldPasswordMode(loginPasswordInput, false);
-        UpdateToggleIcon(loginTogglePasswordImage, isLoginPasswordVisible);
-    }
-
-    private void ToggleLoginPasswordVisibility()
-    {
-        isLoginPasswordVisible = !isLoginPasswordVisible;
-        SetInputFieldPasswordMode(loginPasswordInput, isLoginPasswordVisible);
-        UpdateToggleIcon(loginTogglePasswordImage, isLoginPasswordVisible);
-    }
-
+    #region Login
     private void OnLoginButtonClicked()
     {
         if (string.IsNullOrEmpty(loginEmailInput.text) || string.IsNullOrEmpty(loginPasswordInput.text))
         {
             ShowFeedback("Preencha email e senha");
-            if (loginErrorImage != null) loginErrorImage.gameObject.SetActive(true);
+            loginErrorImage?.gameObject.SetActive(true);
             return;
         }
-        if (loginErrorImage != null) loginErrorImage.gameObject.SetActive(false);
 
-        ClearFeedback();
-
+        loginErrorImage?.gameObject.SetActive(false);
         ShowFeedback("Tentando logar...");
         FirebaseManager.Instance.LoginUser(loginEmailInput.text, loginPasswordInput.text);
     }
@@ -213,27 +154,43 @@ public class SceneFlowManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(loginEmailInput.text))
         {
-            ShowFeedback("Informe o email para resetar");
+            ShowFeedback("Digite o email para resetar");
             return;
         }
-        ClearFeedback();
-        ShowFeedback("Enviando email de recuperação...");
+
+        ShowFeedback("Enviando email de reset...");
         FirebaseManager.Instance.SendPasswordResetEmail(loginEmailInput.text);
+    }
+
+    private void ToggleLoginPasswordVisibility()
+    {
+        isLoginPasswordVisible = !isLoginPasswordVisible;
+        SetInputFieldPasswordMode(loginPasswordInput, isLoginPasswordVisible);
+        UpdateToggleIcon(loginTogglePasswordImage, isLoginPasswordVisible);
     }
     #endregion
 
-    #region Register Methods
-    private void ClearRegisterFields()
+    #region Register
+    private void OnRegisterButtonClicked()
     {
-        if (registerEmailInput != null) registerEmailInput.text = "";
-        if (registerPasswordInput != null) registerPasswordInput.text = "";
-        if (registerConfirmPasswordInput != null) registerConfirmPasswordInput.text = "";
-        isRegisterPasswordVisible = false;
-        isRegisterConfirmPasswordVisible = false;
-        SetInputFieldPasswordMode(registerPasswordInput, false);
-        SetInputFieldPasswordMode(registerConfirmPasswordInput, false);
-        UpdateToggleIcon(registerTogglePasswordImage1, isRegisterPasswordVisible);
-        UpdateToggleIcon(registerTogglePasswordImage2, isRegisterConfirmPasswordVisible);
+        if (string.IsNullOrEmpty(registerEmailInput.text) ||
+            string.IsNullOrEmpty(registerPasswordInput.text) ||
+            string.IsNullOrEmpty(registerConfirmPasswordInput.text))
+        {
+            ShowFeedback("Preencha todos os campos");
+            return;
+        }
+
+        if (registerPasswordInput.text != registerConfirmPasswordInput.text)
+        {
+            ShowFeedback("Senhas não conferem");
+            return;
+        }
+
+        ShowFeedback("Registrando...");
+        FirebaseManager.Instance.RegisterUser(registerEmailInput.text, registerPasswordInput.text);
+
+        ShowLoginPanel();
     }
 
     private void ToggleRegisterPasswordVisibility()
@@ -249,28 +206,6 @@ public class SceneFlowManager : MonoBehaviour
         SetInputFieldPasswordMode(registerConfirmPasswordInput, isRegisterConfirmPasswordVisible);
         UpdateToggleIcon(registerTogglePasswordImage2, isRegisterConfirmPasswordVisible);
     }
-
-    private void OnRegisterButtonClicked()
-    {
-        if (string.IsNullOrEmpty(registerEmailInput.text) ||
-            string.IsNullOrEmpty(registerPasswordInput.text) ||
-            string.IsNullOrEmpty(registerConfirmPasswordInput.text))
-        {
-            ShowFeedback("Preencha todos os campos");
-            return;
-        }
-
-        if (registerPasswordInput.text != registerConfirmPasswordInput.text)
-        {
-            ShowFeedback("Senhas nao conferem");
-            return;
-        }
-
-        ClearFeedback();
-
-        ShowFeedback("Tentando registrar...");
-        FirebaseManager.Instance.RegisterUser(registerEmailInput.text, registerPasswordInput.text);
-    }
     #endregion
 
     #region Logout
@@ -278,46 +213,76 @@ public class SceneFlowManager : MonoBehaviour
     {
         FirebaseManager.Instance.Logout();
     }
-
-    private void OnFirebaseLogout()
-    {
-        ShowFeedback("Usuário deslogado.");
-        FadeToPanel(mainMenuPanel);
-    }
     #endregion
 
     #region Firebase Events
-    private void OnFirebaseAuthFailed(string errorMessage)
+    private void OnFirebaseAuthFailed(string msg)
     {
-        ShowFeedback(errorMessage);
-        if (loginErrorImage != null)
-            loginErrorImage.gameObject.SetActive(true);
+        ShowFeedback(msg);
+        loginErrorImage?.gameObject.SetActive(true);
     }
 
     private void OnFirebaseAuthSuccess()
     {
-        // Quando login ou registro ocorrer com sucesso, ir para o menu principal ou gameplay
-        ShowFeedback("");
+        Debug.Log("Usuário autenticado. Ativando gameplay panel...");
+        ShowOnlyPanel(gameplayPanel);
+    }
 
-        // Exemplo: ao logar ou registrar, vai direto pra gameplay
-        GoToGameplayScene();
+    private void OnFirebaseLogout()
+    {
+        ShowFeedback("Deslogado.");
+        ShowMainMenuPanel();
     }
     #endregion
 
-    #region Helpers
-    private void SetInputFieldPasswordMode(TMP_InputField inputField, bool visible)
+    #region Feedback e Utils
+    public void ShowFeedback(string msg)
     {
-        if (inputField == null) return;
-
-        inputField.contentType = visible ? TMP_InputField.ContentType.Standard : TMP_InputField.ContentType.Password;
-        inputField.ForceLabelUpdate();
+        if (mensagemFeedback != null)
+            mensagemFeedback.text = msg;
     }
 
-    private void UpdateToggleIcon(Image iconImage, bool visible)
+    public void ClearFeedback()
     {
-        if (iconImage == null || eyeOpenSprite == null || eyeClosedSprite == null) return;
+        if (mensagemFeedback != null)
+            mensagemFeedback.text = "";
+    }
 
-        iconImage.sprite = visible ? eyeOpenSprite : eyeClosedSprite;
+    private void ResetFields()
+    {
+        loginEmailInput.text = "";
+        loginPasswordInput.text = "";
+        registerEmailInput.text = "";
+        registerPasswordInput.text = "";
+        registerConfirmPasswordInput.text = "";
+
+        isLoginPasswordVisible = false;
+        isRegisterPasswordVisible = false;
+        isRegisterConfirmPasswordVisible = false;
+
+        SetInputFieldPasswordMode(loginPasswordInput, false);
+        SetInputFieldPasswordMode(registerPasswordInput, false);
+        SetInputFieldPasswordMode(registerConfirmPasswordInput, false);
+
+        UpdateToggleIcon(loginTogglePasswordImage, false);
+        UpdateToggleIcon(registerTogglePasswordImage1, false);
+        UpdateToggleIcon(registerTogglePasswordImage2, false);
+
+        loginErrorImage?.gameObject.SetActive(false);
+        ClearFeedback();
+    }
+
+    private void SetInputFieldPasswordMode(TMP_InputField input, bool visible)
+    {
+        if (input == null) return;
+        input.contentType = visible ? TMP_InputField.ContentType.Standard : TMP_InputField.ContentType.Password;
+        input.ForceLabelUpdate();
+    }
+
+    private void UpdateToggleIcon(Image img, bool visible)
+    {
+        if (img == null || eyeOpenSprite == null || eyeClosedSprite == null) return;
+        img.sprite = visible ? eyeOpenSprite : eyeClosedSprite;
     }
     #endregion
 }
