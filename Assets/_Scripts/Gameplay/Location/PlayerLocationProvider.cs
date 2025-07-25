@@ -9,6 +9,9 @@ public class PlayerLocationProvider : MonoBehaviour
     public PlayerLocationUpdater player;
     public PlayerCurrencyManager playerCurrencyManager;
 
+    private Vector3 targetPosition;  // posição final para o player se mover suavemente
+    private bool hasNewLocation = false;
+
     IEnumerator Start()
     {
         if (!Input.location.isEnabledByUser)
@@ -18,8 +21,6 @@ public class PlayerLocationProvider : MonoBehaviour
         }
 
         Input.location.Start();
-
-        // Ativa bússola
         Input.compass.enabled = true;
 
         int maxWait = 20;
@@ -40,14 +41,13 @@ public class PlayerLocationProvider : MonoBehaviour
             double lat = Input.location.lastData.latitude;
             double lon = Input.location.lastData.longitude;
 
-            player.SetLocation(lat, lon);
+            // Converte para posição no mundo Unity
+            Vector2d latLon = new Vector2d(lat, lon);
+            targetPosition = map.GeoToWorldPosition(latLon, true);
+            hasNewLocation = true;
 
-            // Rotaciona o player para o heading da bússola (suaviza com Lerp)
-            float heading = Input.compass.trueHeading;
-            Quaternion targetRotation = Quaternion.Euler(0, heading, 0);
-            player.transform.rotation = Quaternion.Lerp(player.transform.rotation, targetRotation, Time.deltaTime * 5f);
-
-            map.UpdateMap(new Vector2d(lat, lon));
+            // Atualiza mapa na posição atual
+            map.UpdateMap(latLon);
 
             if (playerCurrencyManager != null)
             {
@@ -55,6 +55,28 @@ public class PlayerLocationProvider : MonoBehaviour
             }
 
             yield return new WaitForSeconds(1f);
+        }
+    }
+
+    void Update()
+    {
+        if (hasNewLocation)
+        {
+            // Movimento suave até a nova posição
+            player.transform.position = Vector3.Lerp(
+                player.transform.position,
+                targetPosition,
+                Time.deltaTime * 5f
+            );
+
+            // Rotação suave para o heading da bússola
+            float heading = Input.compass.trueHeading;
+            Quaternion targetRotation = Quaternion.Euler(0, heading, 0);
+            player.transform.rotation = Quaternion.Lerp(
+                player.transform.rotation,
+                targetRotation,
+                Time.deltaTime * 5f
+            );
         }
     }
 

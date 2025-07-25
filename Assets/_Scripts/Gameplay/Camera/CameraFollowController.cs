@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Segue o player com Free Look (arrastar dedo ou mouse no editor)
 /// e recentraliza ao apertar o botão.
-/// Tem zoom (pinch) também.
+/// Tem zoom (pinch) no mobile e scroll no editor.
 /// </summary>
 public class CameraFollowController : MonoBehaviour
 {
@@ -39,16 +39,7 @@ public class CameraFollowController : MonoBehaviour
             currentYaw += touch.deltaPosition.x * orbitSpeed * Time.deltaTime;
         }
 
-        // Mouse no editor
-#if UNITY_EDITOR
-        if (Input.GetMouseButton(0))
-        {
-            followRotation = false;
-            currentYaw += Input.GetAxis("Mouse X") * orbitSpeed * Time.deltaTime * 100f;
-        }
-#endif
-
-        // Pinch para zoom
+        // Pinch para zoom no mobile
         if (Input.touchCount == 2)
         {
             Touch t0 = Input.GetTouch(0);
@@ -61,6 +52,23 @@ public class CameraFollowController : MonoBehaviour
             currentZoom -= diff * zoomSpeed * Time.deltaTime;
             currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
         }
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+        // Scroll do mouse para zoom no editor/standalone
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.01f)
+        {
+            currentZoom -= scroll * zoomSpeed;
+            currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
+        }
+
+        // Mouse arrasta → orbit livre
+        if (Input.GetMouseButton(0))
+        {
+            followRotation = false;
+            currentYaw += Input.GetAxis("Mouse X") * orbitSpeed * Time.deltaTime * 100f;
+        }
+#endif
     }
 
     void LateUpdate()
@@ -69,7 +77,6 @@ public class CameraFollowController : MonoBehaviour
 
         if (followRotation)
         {
-            // Suavemente centraliza pra trás do player
             currentYaw = Mathf.LerpAngle(currentYaw, player.eulerAngles.y, rotationLerpSpeed * Time.deltaTime);
         }
 
