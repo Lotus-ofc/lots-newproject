@@ -1256,26 +1256,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 872630921140270712}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &136397821572563730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4424045110698008665}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b07b700407d711e4aa555c43f9cfeb5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  simulateLocation: 1
-  latitude: -23.55214
-  longitude: -46.647198
-  speed: 5
-  directionDegrees: 0
-  map: {fileID: 6335216667434934324}
-  player: {fileID: 1206488105853236501}
-  playerCurrencyManager: {fileID: 5639569068755783100}
 --- !u!224 &148961201116664834
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1809,7 +1789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce50f9377d57d124dae41ecef26daf5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorProviderScript: {fileID: 136397821572563730}
+  editorProviderScript: {fileID: 0}
   playerProviderScript: {fileID: 2100788581366084298}
 --- !u!4 &593173781019554081
 Transform:
@@ -6092,14 +6072,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5385695963987363024}
-  - component: {fileID: 136397821572563730}
   m_Layer: 0
   m_Name: _EditorLocationManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &4442792546544125389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7233,6 +7212,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5550023894035942973}
   - component: {fileID: 2100788581366084298}
+  - component: {fileID: 5550023894035942974}
   m_Layer: 0
   m_Name: _LocationProvider
   m_TagString: Untagged
@@ -7680,6 +7660,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1156209098}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5550023894035942974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5311325727394335415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b07b700407d711e4aa555c43f9cfeb5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  simulateLocation: 1
+  latitude: -23.55214
+  longitude: -46.647198
+  speed: 5
+  directionDegrees: 0
+  map: {fileID: 6335216667434934324}
+  player: {fileID: 1206488105853236501}
+  playerCurrencyManager: {fileID: 5639569068755783100}
 --- !u!114 &5610946921466811328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11437,7 +11437,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.7166669, y: 0.11100001}
   m_AnchorMax: {x: 0.86200005, y: 0.19000001}
-  m_AnchoredPosition: {x: 1.5, y: -56.501465}
+  m_AnchoredPosition: {x: 1.5, y: -56.50171}
   m_SizeDelta: {x: 4, y: 3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8926865142784042463
