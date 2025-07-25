@@ -1,3 +1,4 @@
+// SceneFlowManager.cs
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -51,20 +52,21 @@ public class SceneFlowManager : MonoBehaviour
     public Sprite eyeOpenSprite;
     public Sprite eyeClosedSprite;
 
-    [Header("Managers de Gameplay Controlados")]
-    public GameObject locationPermissionManager;
-    public GameObject currencyManager;
-    public GameObject locationProvider; // Este é o GameObject que tem o EditorLocationProvider
-    public GameObject uiManager;
-    public GameObject playerLocationUpdater;
+    [Header("Managers de Gameplay Controlados (GameObjects)")]
+    public GameObject locationPermissionManagerGO; // Renomeado para clareza
+    public GameObject currencyManagerGO; // Renomeado para clareza
+    public GameObject locationProviderGO; // Renomeado para clareza: representa o GameObject que tem os provedores
+    public GameObject uiManagerGO; // Renomeado para clareza
+    public GameObject playerLocationUpdaterGO; // Renomeado para clareza
     public GameObject playerGO;
 
-    // Adicionado para ter a referência do AbstractMap se o SceneFlowManager precisar passá-lo para algo
-    // Mas para o EditorLocationProvider atual, não é estritamente necessário se ele for public no EditorLocationProvider
-    // e setado lá. Mantendo por precaução se você precisar mais tarde.
-    // [SerializeField] private AbstractMap _map; 
-
-
+    // Referências diretas para os scripts dos managers (obtidas via GetComponent)
+    private LocationPermissionManager _locationPermissionManager;
+    private PlayerCurrencyManager _playerCurrencyManager;
+    private PlayerLocationProvider _playerLocationProvider;
+    private EditorLocationProvider _editorLocationProvider;
+    private PlayerLocationUpdater _playerLocationUpdater;
+    
     private bool isLoginPasswordVisible = false;
     private bool isRegisterPasswordVisible = false;
     private bool isRegisterConfirmPasswordVisible = false;
@@ -172,14 +174,15 @@ public class SceneFlowManager : MonoBehaviour
     public void ShowPressToPlayPanel()
     {
         ShowOnlyPanel(pressToPlayPanel);
-        InitializeGameplayManagers();
+        InitializeGameplayManagers(); // Inicializa os managers de gameplay
     }
 
     public void ShowGameplayPanel()
     {
         ShowOnlyPanel(gameplayPanel);
         ShowFeedback("Bem-vindo à Gameplay!");
-        InitializeGameplayManagers();
+        // Não chame InitializeGameplayManagers() novamente aqui se já foi chamado em ShowPressToPlayPanel
+        // A menos que você queira re-inicializar
     }
 
     #endregion
@@ -336,37 +339,63 @@ public class SceneFlowManager : MonoBehaviour
 
     #endregion
 
-    // Centraliza ativação dos managers e remove a chamada InitializeProvider
+    // Centraliza ativação e obtenção de referências dos managers
     public void InitializeGameplayManagers()
     {
-        SetGameplayManagersActive(true);
+        SetGameplayManagersActive(true); // Ativa os GameObjects primeiro
 
-        // AQUI ESTÁ A MUDANÇA: A chamada a InitializeProvider() foi removida.
-        // O EditorLocationProvider agora se inicializa no próprio Start().
-        // Você só precisa garantir que o 'locationProvider' GameObject esteja ativo,
-        // o que já é feito por SetGameplayManagersActive(true).
-        if (locationProvider != null)
+        // Obter referências aos scripts dos managers
+        if (locationPermissionManagerGO != null)
         {
-            var locationProviderScript = locationProvider.GetComponent<EditorLocationProvider>();
-            if (locationProviderScript == null)
+            _locationPermissionManager = locationPermissionManagerGO.GetComponent<LocationPermissionManager>();
+            if (_locationPermissionManager == null) Debug.LogError("SceneFlowManager: LocationPermissionManager não encontrado no GameObject 'locationPermissionManagerGO'.");
+        }
+        else Debug.LogWarning("SceneFlowManager: GameObject 'locationPermissionManagerGO' não atribuído no Inspector.");
+
+        if (currencyManagerGO != null)
+        {
+            _playerCurrencyManager = currencyManagerGO.GetComponent<PlayerCurrencyManager>();
+            if (_playerCurrencyManager == null) Debug.LogError("SceneFlowManager: PlayerCurrencyManager não encontrado no GameObject 'currencyManagerGO'.");
+        }
+        else Debug.LogWarning("SceneFlowManager: GameObject 'currencyManagerGO' não atribuído no Inspector.");
+
+        if (locationProviderGO != null)
+        {
+            // Tenta obter o EditorLocationProvider (principalmente para uso no Editor)
+            _editorLocationProvider = locationProviderGO.GetComponent<EditorLocationProvider>();
+            if (_editorLocationProvider == null)
             {
-                Debug.LogWarning("SceneFlowManager: EditorLocationProvider não encontrado no locationProvider.");
+                // Se não encontrou o EditorLocationProvider, tenta o PlayerLocationProvider (principalmente para mobile)
+                Debug.LogWarning("SceneFlowManager: EditorLocationProvider não encontrado no 'locationProviderGO'. Tentando PlayerLocationProvider...");
+                _playerLocationProvider = locationProviderGO.GetComponent<PlayerLocationProvider>();
+                if (_playerLocationProvider == null)
+                {
+                    Debug.LogError("SceneFlowManager: Nenhum provedor de localização (EditorLocationProvider ou PlayerLocationProvider) encontrado no 'locationProviderGO'.");
+                }
             }
-            // Não há mais chamada locationProviderScript.InitializeProvider();
         }
-        else
+        else Debug.LogWarning("SceneFlowManager: GameObject 'locationProviderGO' não atribuído no Inspector.");
+
+        if (playerLocationUpdaterGO != null)
         {
-            Debug.LogWarning("SceneFlowManager: GameObject locationProvider não atribuído.");
+            _playerLocationUpdater = playerLocationUpdaterGO.GetComponent<PlayerLocationUpdater>();
+            if (_playerLocationUpdater == null) Debug.LogError("SceneFlowManager: PlayerLocationUpdater não encontrado no GameObject 'playerLocationUpdaterGO'.");
         }
+        else Debug.LogWarning("SceneFlowManager: GameObject 'playerLocationUpdaterGO' não atribuído no Inspector.");
+        
+        // Agora, você pode interagir com os managers através das suas referências privadas (_managerName)
+        // Por exemplo:
+        // if (_playerCurrencyManager != null) _playerCurrencyManager.InitializeEconomy();
+        // if (_uiManager != null) _uiManager.SetupUI(); // Se UI Manager for um script com método de setup
     }
 
     private void SetGameplayManagersActive(bool isActive)
     {
-        locationPermissionManager?.SetActive(isActive);
-        currencyManager?.SetActive(isActive);
-        locationProvider?.SetActive(isActive);
-        uiManager?.SetActive(isActive);
-        playerLocationUpdater?.SetActive(isActive);
+        locationPermissionManagerGO?.SetActive(isActive);
+        currencyManagerGO?.SetActive(isActive);
+        locationProviderGO?.SetActive(isActive);
+        uiManagerGO?.SetActive(isActive);
+        playerLocationUpdaterGO?.SetActive(isActive);
         playerGO?.SetActive(isActive);
     }
 

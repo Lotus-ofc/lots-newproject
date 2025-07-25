@@ -2,20 +2,17 @@ using UnityEngine;
 
 public class PlayerLocationModeSelector : MonoBehaviour
 {
-    public GameObject editorLocationProvider;
-    public GameObject playerLocationProvider;
+    public EditorLocationProvider editorProviderScript; // Atribua o script aqui
+    public PlayerLocationProvider playerProviderScript; // Atribua o script aqui
 
     void Awake()
     {
 #if UNITY_EDITOR
-        if (editorLocationProvider != null) editorLocationProvider.SetActive(true);
-        if (playerLocationProvider != null) playerLocationProvider.SetActive(false);
+        if (editorProviderScript != null) editorProviderScript.enabled = true;
+        if (playerProviderScript != null) playerProviderScript.enabled = false;
 #else
-        if (editorLocationProvider != null) editorLocationProvider.SetActive(false);
-        if (playerLocationProvider != null) playerLocationProvider.SetActive(true);
+        if (editorProviderScript != null) editorProviderScript.enabled = false;
+        if (playerProviderScript != null) playerProviderScript.enabled = true;
 #endif
     }
 }
-
-/* Trocar de Script "EditorLocationProvider" e "PlayerLocationProvider" automaticamente.
-para que não o boneco não começe a andar sozinho nos dispositivos. */
