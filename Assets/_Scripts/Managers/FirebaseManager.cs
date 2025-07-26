@@ -11,95 +11,82 @@ public class FirebaseManager : MonoBehaviour
     public FirebaseAuth Auth { get; private set; }
     public FirebaseUser User { get; private set; }
 
-    // Eventos para comunicação com outros scripts
-    public event Action<string> OnAuthFailed;    // Disparado quando ocorre erro de autenticação
-    public event Action OnAuthSuccess;           // Disparado no login bem sucedido
-    public event Action OnLogout;                // Disparado no logout
+    public event Action<string> OnAuthFailed;    // Erro de autenticação
+    public event Action OnAuthSuccess;           // Login bem-sucedido
+    public event Action OnLogout;                // Logout
 
-    // No FirebaseManager.cs
-
-private void Awake()
-{
-    if (Instance == null)
+    private void Awake()
     {
-        Instance = this;
-        // Remova ou comente a linha abaixo se você quer que o FirebaseManager seja destruído ao carregar uma nova cena
-        DontDestroyOnLoad(gameObject); 
-        Debug.Log("FirebaseManager: Instância criada.");
-        InitializeFirebase();
-    }
-    else
-    {
-        Debug.LogWarning("FirebaseManager: Instância já existe. Destruindo esta nova.");
-        Destroy(gameObject);
-    }
-}
-
-    // No FirebaseManager.cs
-private void InitializeFirebase()
-{
-    Debug.Log("FirebaseManager: Iniciando checagem de dependências do Firebase...");
-    FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
-    {
-        var status = task.Result;
-        if (status == DependencyStatus.Available)
+        if (Instance == null)
         {
-            Auth = FirebaseAuth.DefaultInstance;
-            Auth.StateChanged += AuthStateChanged; // Inscreve-se no evento
-            User = Auth.CurrentUser; // Obtém o usuário na inicialização
-            Debug.Log("✅ FirebaseManager: Firebase inicializado com sucesso.");
-
-            // **Chame AuthStateChanged uma vez na inicialização**
-            // para que a lógica de "já logado" seja processada e o OnAuthSuccess seja disparado.
-            AuthStateChanged(this, EventArgs.Empty); 
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            Debug.Log("FirebaseManager: Instância criada.");
+            InitializeFirebase();
         }
         else
         {
-            Debug.LogError($"❌ FirebaseManager: Erro ao inicializar Firebase: {status}");
-            OnAuthFailed?.Invoke("Falha ao inicializar o serviço de autenticação.");
+            Debug.LogWarning("FirebaseManager: Instância já existe. Destruindo esta nova.");
+            Destroy(gameObject);
         }
-    });
-}
+    }
 
-    // No FirebaseManager.cs
-
-private void AuthStateChanged(object sender, System.EventArgs eventArgs)
-{
-    FirebaseUser newUser = Auth.CurrentUser;
-
-    // Se o novo usuário é diferente do usuário anterior (ou um era null e o outro não)
-    if (newUser != User) 
+    private void InitializeFirebase()
     {
-        User = newUser; // Atualiza a referência do usuário
-        if (User != null && User.IsValid())
+        Debug.Log("FirebaseManager: Checando dependências do Firebase...");
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
-            Debug.Log($"✅ FirebaseManager: Estado de autenticação alterado - Usuário logado: {User.Email}. Disparando OnAuthSuccess.");
-            OnAuthSuccess?.Invoke(); // Dispara o evento de sucesso para a UI
+            var status = task.Result;
+            if (status == DependencyStatus.Available)
+            {
+                Auth = FirebaseAuth.DefaultInstance;
+                Auth.StateChanged += AuthStateChanged;
+                User = Auth.CurrentUser;
+                Debug.Log("✅ FirebaseManager: Firebase inicializado com sucesso.");
+                // Chame AuthStateChanged no thread principal para garantir que os eventos Unity sejam disparados
+                UnityMainThreadDispatcher.Instance().Enqueue(() => AuthStateChanged(this, EventArgs.Empty)); 
+            }
+            else
+            {
+                Debug.LogError($"❌ FirebaseManager: Erro ao inicializar Firebase: {status}");
+                // Dispare o evento OnAuthFailed no thread principal
+                UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthFailed?.Invoke("Falha ao inicializar autenticação."));
+            }
+        });
+    }
+
+    private void AuthStateChanged(object sender, EventArgs eventArgs)
+    {
+        FirebaseUser newUser = Auth.CurrentUser;
+
+        if (newUser != User)
+        {
+            User = newUser;
+            if (User != null && User.IsValid())
+            {
+                Debug.Log($"✅ FirebaseManager: Usuário logado: {User.Email}");
+                UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthSuccess?.Invoke()); // Garante no thread principal
+            }
+            else
+            {
+                Debug.Log("⚠️ FirebaseManager: Usuário deslogado.");
+                UnityMainThreadDispatcher.Instance().Enqueue(() => OnLogout?.Invoke()); // Garante no thread principal
+            }
+        }
+        else if (User != null && User.IsValid())
+        {
+            Debug.Log($"FirebaseManager: Usuário já estava logado: {User.Email}");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthSuccess?.Invoke()); // Garante no thread principal
         }
         else
         {
-            Debug.Log("⚠️ FirebaseManager: Estado de autenticação alterado - Usuário deslogado ou nulo. Disparando OnLogout.");
-            OnLogout?.Invoke(); // Dispara o evento de logout para a UI
+            Debug.Log("FirebaseManager: Ninguém logado.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnLogout?.Invoke()); // Garante no thread principal
         }
     }
-    // ESTE ELSE IF É FUNDAMENTAL para quando o jogo inicia e o usuário JÁ ESTÁ logado.
-    // O AuthStateChanged é chamado, mas newUser e User são ambos o mesmo (o usuário logado),
-    // então a primeira condição (newUser != User) seria falsa.
-    else if (User != null && User.IsValid()) 
-    {
-        Debug.Log($"FirebaseManager: Usuário já estava logado ({User.Email}). Garantindo que a UI responda via OnAuthSuccess.");
-        OnAuthSuccess?.Invoke(); // Garante que a UI reaja ao estado logado na inicialização
-    }
-    else // Nenhuma mudança e ainda não logado
-    {
-        Debug.Log("FirebaseManager: Nenhuma mudança no estado de autenticação. Ninguém logado.");
-        OnLogout?.Invoke(); // Garante que a UI mostre o menu principal ou painel de login.
-    }
-}
 
     private void OnDestroy()
     {
-        // Desinscreva o evento para evitar memory leaks
         if (Auth != null)
         {
             Auth.StateChanged -= AuthStateChanged;
@@ -108,67 +95,87 @@ private void AuthStateChanged(object sender, System.EventArgs eventArgs)
 
     public void RegisterUser(string email, string password)
     {
-        Debug.Log($"FirebaseManager: Tentando registrar usuário com email: {email}");
+        Debug.Log($"FirebaseManager: Tentando registrar usuário: {email}");
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            OnAuthFailed?.Invoke("Email e senha não podem ser vazios para o registro.");
-            Debug.LogWarning("FirebaseManager: Tentativa de registro com email ou senha vazios.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthFailed?.Invoke("Preencha email e senha para registro."));
             return;
         }
         if (Auth == null)
         {
-            OnAuthFailed?.Invoke("Serviço de autenticação não inicializado.");
-            Debug.LogError("FirebaseManager: Auth é nulo ao tentar registrar.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthFailed?.Invoke("Serviço de autenticação não inicializado."));
             return;
         }
 
         Auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWith(task =>
         {
-            if (task.IsFaulted || task.IsCanceled)
+            UnityMainThreadDispatcher.Instance().Enqueue(() =>
             {
-                string erro = GetFirebaseError(task.Exception);
-                Debug.LogError($"❌ FirebaseManager: Erro ao registrar: {erro}");
-                OnAuthFailed?.Invoke(erro);
-            }
-            else
-            {
-                Debug.Log("✅ FirebaseManager: Usuário registrado com sucesso. User: " + task.Result.User.Email);
-                // Não loga automaticamente, a UI (SceneFlowManager) deve guiar para a tela de login.
-                // O SceneFlowManager pode exibir um feedback e então mudar para a tela de login.
-            }
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    string erro = GetFirebaseError(task.Exception);
+                    Debug.LogError($"❌ Erro ao registrar: {erro}");
+                    OnAuthFailed?.Invoke(erro); // Evento para notificar a falha de registro
+                }
+                else
+                {
+                    Debug.Log($"✅ Usuário registrado: {task.Result.User.Email}");
+                    // O Firebase automaticamente loga o usuário após o registro bem-sucedido.
+                    // O AuthStateChanged vai capturar isso e disparar OnAuthSuccess.
+                    // Para feedback específico de "registro bem-sucedido" antes do login,
+                    // você pode adicionar um novo evento OnRegisterSuccess.
+                    // Por ora, confiaremos no fluxo AuthStateChanged -> OnAuthSuccess
+                    // ou no feedback manual que o SceneFlowManager pode exibir após o OnRegisterButtonClicked.
+                    SceneFlowManager.Instance?.ShowLoginPanel(); // Redireciona para o login
+                    SceneFlowManager.Instance?.ShowFeedback("Usuário registrado com sucesso! Faça login."); // Feedback manual
+                }
+            });
         });
     }
 
     public void LoginUser(string email, string password)
     {
-        Debug.Log($"FirebaseManager: Tentando logar usuário com email: {email}");
+        Debug.Log($"FirebaseManager: Tentando logar usuário: {email}");
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            OnAuthFailed?.Invoke("Email e senha não podem ser vazios para o login.");
-            Debug.LogWarning("FirebaseManager: Tentativa de login com email ou senha vazios.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthFailed?.Invoke("Preencha email e senha para login."));
             return;
         }
         if (Auth == null)
         {
-            OnAuthFailed?.Invoke("Serviço de autenticação não inicializado.");
-            Debug.LogError("FirebaseManager: Auth é nulo ao tentar logar.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthFailed?.Invoke("Serviço de autenticação não inicializado."));
             return;
         }
 
         Auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWith(task =>
         {
-            if (task.IsFaulted || task.IsCanceled)
+            UnityMainThreadDispatcher.Instance().Enqueue(() =>
             {
-                string erro = GetFirebaseError(task.Exception);
-                Debug.LogError($"❌ FirebaseManager: Erro no login: {erro}");
-                OnAuthFailed?.Invoke(erro);
-            }
-            else
-            {
-                User = task.Result.User;
-                Debug.Log($"✅ FirebaseManager: Usuário logado com sucesso. User: {User.Email}");
-                OnAuthSuccess?.Invoke(); // Dispara evento de sucesso (Será capturado por AuthStateChanged também)
-            }
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    string firebaseErrorMsg = GetFirebaseError(task.Exception);
+                    Debug.LogError($"❌ Erro no login: {firebaseErrorMsg}");
+
+                    // Lógica para sobrescrever mensagens de erro (mantida conforme seu código original)
+                    if (firebaseErrorMsg == "Email inválido.")
+                    {
+                        Debug.Log($"DISPARANDO ON_AUTH_FAILED com mensagem: {firebaseErrorMsg}");
+                        OnAuthFailed?.Invoke(firebaseErrorMsg);
+                    }
+                    else
+                    {
+                        Debug.Log($"DISPARANDO ON_AUTH_FAILED com mensagem: E-mail e ou senha incorretos (original: {firebaseErrorMsg})");
+                        OnAuthFailed?.Invoke("E-mail e ou senha incorretos");
+                    }
+                }
+                else
+                {
+                    User = task.Result.User;
+                    Debug.Log($"✅ Usuário logado: {User.Email}");
+                    // OnAuthSuccess será disparado pelo AuthStateChanged, que é chamado após a autenticação.
+                    // Não precisamos chamar OnAuthSuccess aqui diretamente, AuthStateChanged já cuida disso.
+                }
+            });
         });
     }
 
@@ -178,47 +185,47 @@ private void AuthStateChanged(object sender, System.EventArgs eventArgs)
         if (Auth != null && User != null)
         {
             Auth.SignOut();
-            User = null; // Limpa o usuário atual
-            Debug.Log("✅ FirebaseManager: Usuário deslogado com sucesso.");
-            OnLogout?.Invoke(); // Dispara evento de logout (Será capturado por AuthStateChanged também)
+            User = null;
+            Debug.Log("✅ Usuário deslogado.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnLogout?.Invoke()); // Garante que o evento é disparado no thread principal
         }
         else
         {
-            Debug.LogWarning("⚠️ FirebaseManager: Logout chamado sem usuário logado ou Auth não inicializado.");
-            OnLogout?.Invoke(); // Ainda pode disparar para que a UI responda, mas sem feedback de erro.
+            Debug.LogWarning("⚠️ Logout chamado sem usuário logado.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnLogout?.Invoke()); // Garante que o evento é disparado no thread principal
         }
     }
 
     public void SendPasswordResetEmail(string email)
     {
-        Debug.Log($"FirebaseManager: Tentando enviar email de redefinição para: {email}");
+        Debug.Log($"FirebaseManager: Tentando enviar email de reset para: {email}");
         if (string.IsNullOrEmpty(email))
         {
-            OnAuthFailed?.Invoke("Email não pode ser vazio para redefinir senha.");
-            Debug.LogWarning("FirebaseManager: Tentativa de enviar email de reset com email vazio.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthFailed?.Invoke("Digite o email para resetar a senha."));
             return;
         }
         if (Auth == null)
         {
-            OnAuthFailed?.Invoke("Serviço de autenticação não inicializado.");
-            OnAuthFailed?.Invoke("Serviço de autenticação não inicializado.");
-            Debug.LogError("FirebaseManager: Auth é nulo ao tentar enviar email de reset.");
+            UnityMainThreadDispatcher.Instance().Enqueue(() => OnAuthFailed?.Invoke("Serviço de autenticação não inicializado."));
             return;
         }
 
         Auth.SendPasswordResetEmailAsync(email).ContinueWith(task =>
         {
-            if (task.IsFaulted || task.IsCanceled)
+            UnityMainThreadDispatcher.Instance().Enqueue(() =>
             {
-                string erro = GetFirebaseError(task.Exception);
-                Debug.LogError($"❌ FirebaseManager: Erro ao enviar email de reset: {erro}");
-                OnAuthFailed?.Invoke(erro);
-            }
-            else
-            {
-                Debug.Log("✅ FirebaseManager: Email de redefinição enviado com sucesso.");
-                OnAuthFailed?.Invoke("Email de redefinição de senha enviado. Verifique sua caixa de entrada."); // Usando OnAuthFailed para feedback para o usuário
-            }
+                if (task.IsFaulted || task.IsCanceled)
+                {
+                    string erro = GetFirebaseError(task.Exception);
+                    Debug.LogError($"❌ Erro ao enviar email de reset: {erro}");
+                    OnAuthFailed?.Invoke(erro);
+                }
+                else
+                {
+                    Debug.Log("✅ Email de redefinição enviado.");
+                    OnAuthFailed?.Invoke("Email de redefinição enviado. Verifique sua caixa de entrada."); // Usando OnAuthFailed para feedback de sucesso aqui
+                }
+            });
         });
     }
 
@@ -230,35 +237,26 @@ private void AuthStateChanged(object sender, System.EventArgs eventArgs)
         {
             if (e is FirebaseException firebaseEx)
             {
-                AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
-                Debug.LogError($"Firebase Error Code: {errorCode}, Message: {firebaseEx.Message}");
-                switch (errorCode)
+                AuthError code = (AuthError)firebaseEx.ErrorCode;
+                Debug.LogError($"Firebase Error Code: {code} | Message: {firebaseEx.Message}");
+
+                switch (code)
                 {
-                    case AuthError.MissingEmail:
-                        return "Por favor, digite seu email.";
-                    case AuthError.InvalidEmail:
-                        return "Email inválido.";
-                    case AuthError.WrongPassword:
-                        return "Senha incorreta.";
-                    case AuthError.UserNotFound:
-                        return "Usuário não encontrado. Crie uma conta.";
-                    case AuthError.WeakPassword:
-                        return "Senha muito fraca. Mínimo 6 caracteres.";
-                    case AuthError.EmailAlreadyInUse:
-                        return "Este email já está em uso.";
-                    case AuthError.NetworkRequestFailed:
-                        return "Erro de conexão. Verifique sua internet.";
-                    case AuthError.UserDisabled:
-                        return "Sua conta foi desativada.";
-                    case AuthError.TooManyRequests:
-                        return "Muitas tentativas. Tente novamente mais tarde.";
-                    case AuthError.RequiresRecentLogin:
-                        return "Esta operação requer autenticação recente. Faça login novamente.";
-                    default:
-                        return "Erro de autenticação: " + firebaseEx.Message;
+                    case AuthError.MissingEmail: return "Digite o email.";
+                    case AuthError.InvalidEmail: return "Email inválido.";
+                    case AuthError.WrongPassword: return "Senha incorreta.";
+                    case AuthError.UserNotFound: return "Email não encontrado.";
+                    case AuthError.EmailAlreadyInUse: return "Email já em uso.";
+                    case AuthError.WeakPassword: return "Senha muito fraca.";
+                    case AuthError.TooManyRequests: return "Muitas tentativas, tente mais tarde.";
+                    case AuthError.NetworkRequestFailed: return "Erro de rede, verifique sua internet.";
+                    case AuthError.UserDisabled: return "Conta desativada.";
+                    case AuthError.AppNotAuthorized: return "Aplicação não autorizada no Firebase. Verifique as credenciais.";
+                    // A mensagem restante é um fallback genérico ou para erros não mapeados.
+                    default: return "Erro de autenticação. Tente novamente."; 
                 }
             }
         }
-        return "Erro desconhecido.";
+        return "Um erro inesperado ocorreu.";
     }
 }
