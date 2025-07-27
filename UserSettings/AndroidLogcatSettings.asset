@@ -1,13 +1,20 @@
 {
     "m_SelectedDeviceId": "RQCX407ZLTB",
     "m_SelectedProcess": {
-        "deviceId": "",
-        "name": "",
-        "processId": 0,
+        "deviceId": "RQCX407ZLTB",
+        "name": "com.Lotus.LotsNew",
+        "processId": 20136,
         "exited": false
     },
     "m_SelectedPriority": 0,
-    "m_KnownProcessesForSerialization": [],
+    "m_KnownProcessesForSerialization": [
+        {
+            "deviceId": "RQCX407ZLTB",
+            "name": "com.Lotus.LotsNew",
+            "processId": 20136,
+            "exited": false
+        }
+    ],
     "m_Tags": {
         "m_Entries": [
             {

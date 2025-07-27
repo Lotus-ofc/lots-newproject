@@ -1,47 +1,63 @@
 using UnityEngine;
 using UnityEngine.Android;
 
+/// <summary>
+/// Gerencia a permissão de localização no Android.
+/// Ideal para inicializar Mapbox ou lógica que depende de GPS.
+/// </summary>
 public class LocationPermissionManager : MonoBehaviour
 {
-    public delegate void PermissionResult(bool granted);
-    public static event PermissionResult OnPermissionResult;
-
-    private bool requested = false;
-
-    void Start()
+    /// <summary>
+    /// Chama assim que o objeto ativa.
+    /// </summary>
+    private void Start()
     {
-        CheckAndRequestPermission();
+        CheckAndRequestLocationPermission();
     }
 
-    public void CheckAndRequestPermission()
+    /// <summary>
+    /// Verifica se já temos a permissão e, se não, solicita.
+    /// </summary>
+    public void CheckAndRequestLocationPermission()
     {
-        // Já tem permissão?
-        if (Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+#if UNITY_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
         {
-            Debug.Log("[LocationPermissionManager] Permissão FineLocation já concedida ✅");
-            OnPermissionResult?.Invoke(true);
+            Debug.Log("Permissão de localização NÃO concedida. Solicitando ao usuário...");
+            Permission.RequestUserPermission(Permission.FineLocation);
         }
         else
         {
-            Debug.Log("[LocationPermissionManager] Solicitando permissão FineLocation...");
-            Permission.RequestUserPermission(Permission.FineLocation);
-            requested = true;
+            Debug.Log("Permissão de localização já concedida!");
+            OnLocationPermissionGranted();
         }
+#else
+        Debug.Log("Plataforma não Android - permissão não é necessária.");
+        OnLocationPermissionGranted();
+#endif
     }
 
-    void OnApplicationFocus(bool hasFocus)
+    /// <summary>
+    /// Chame essa função se quiser saber se o player aceitou depois.
+    /// Exemplo: pode usar em um botão "Tentar novamente".
+    /// </summary>
+    public bool IsLocationPermissionGranted()
     {
-        if (hasFocus && requested)
-        {
-            requested = false; // Evita checar toda hora
-            bool granted = Permission.HasUserAuthorizedPermission(Permission.FineLocation);
-            Debug.Log($"[LocationPermissionManager] Permissão FineLocation concedida? {granted}");
-            OnPermissionResult?.Invoke(granted);
-        }
-    }
-
-    public bool HasPermission()
-    {
+#if UNITY_ANDROID
         return Permission.HasUserAuthorizedPermission(Permission.FineLocation);
+#else
+        return true; // Em outras plataformas, assume true
+#endif
+    }
+
+    /// <summary>
+    /// Chamada quando a permissão foi garantida (ou sempre em plataformas não-Android).
+    /// Ideal pra inicializar Mapbox, serviços de localização, etc.
+    /// </summary>
+    private void OnLocationPermissionGranted()
+    {
+        Debug.Log("LocationPermissionManager: Permissão concedida, podemos inicializar localização e Mapbox.");
+        // Exemplo:
+        // MapboxManager.Instance?.Initialize();
     }
 }
