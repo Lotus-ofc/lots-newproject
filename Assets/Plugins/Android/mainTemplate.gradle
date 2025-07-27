@@ -6,9 +6,9 @@ apply plugin: 'com.android.library'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    
     // Substitui o antigo support-v4 pelo androidx moderno
-    // implementation 'androidx.legacy:legacy-support-v4:1.0.0' // Comentado conforme sua configuração
+    // implementation 'androidx.legacy:legacy-support-v4:1.0.0' // Mantido comentado conforme seu projeto
     implementation 'androidx.media:media:1.0.0'
     implementation 'androidx.core:core:1.12.0' // útil pra classes básicas
 
@@ -21,7 +21,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-unity:12.10.1' // Assets/Firebase/Editor/AuthDependencies.xml:20
     implementation 'com.google.firebase:firebase-common:21.0.0' // Assets/Firebase/Editor/AppDependencies.xml:13
 // Android Resolver Dependencies End
-    **DEPS** // Este é um placeholder do Unity, mantenha-o como está.
+    **DEPS**
 }
 
 // Android Resolver Exclusions Start
@@ -38,27 +38,21 @@ android {
 android {
     namespace "com.unity3d.player"
 
-    // Ajuste esse caminho para o seu NDK local, se necessário
-    // É geralmente melhor deixar o Unity gerenciar o caminho do NDK nas Ferramentas Externas.
+    // Remova/comente esta linha para deixar o Unity gerenciar o NDK via External Tools
     // ndkPath "C:/Android/ndk" 
-
-    // ATUALIZAÇÃO: Setar compileSdkVersion para 33 para ser compatível com AGP 7.4.2.
-    compileSdkVersion 33 
     
-    // buildToolsVersion '34.0.0' // Mantenha ou remova se o Gradle puder gerenciar.
-                               // Se mantiver, certifique-se de ter o build-tools 34.0.0 instalado via SDK Manager.
-                               // Para este teste, vamos removê-lo e deixar o Gradle escolher um compatível com a API 33.
+    // Configurações da API Android: Alinhadas com AGP 7.4.2 que suporta até API 33
+    compileSdkVersion 33 
+    // buildToolsVersion '34.0.0' // Comente ou remova para deixar o Gradle escolher a compatível com API 33
 
     compileOptions {
-        // Use Java 11 para compatibilidade de source e target, recomendado para builds Android modernas.
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
 
     defaultConfig {
-        minSdkVersion 21 // Mantenha 21 para compatibilidade com mais dispositivos
-        // ATUALIZAÇÃO: Setar targetSdkVersion para 33 para ser compatível com AGP 7.4.2.
-        targetSdkVersion 33 
+        minSdkVersion 21 // Mantido para compatibilidade
+        targetSdkVersion 33 // Alinhado com compileSdkVersion e AGP 7.4.2
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
@@ -77,7 +71,6 @@ android {
     }
 
     packagingOptions {
-        // Exclui libs duplicadas que podem causar conflito
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
