@@ -4,7 +4,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     
     // Substitui o antigo support-v4 pelo androidx moderno
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    //implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.media:media:1.0.0'
+    implementation 'androidx.core:core:1.12.0' // útil pra classes básicas
 
     // Token do External Dependency Manager – deixa ele adicionar as libs (Firebase, Mapbox, etc)
 // Android Resolver Dependencies Start
