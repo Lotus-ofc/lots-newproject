@@ -1,9 +1,9 @@
 {
     "m_SelectedDeviceId": "RQCX407ZLTB",
     "m_SelectedProcess": {
-        "deviceId": "RQCX407ZLTB",
-        "name": "com.Lotus.LotsNew",
-        "processId": 31418,
+        "deviceId": "",
+        "name": "",
+        "processId": 0,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -12,12 +12,18 @@
             "deviceId": "RQCX407ZLTB",
             "name": "com.Lotus.LotsNew",
             "processId": 20136,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "RQCX407ZLTB",
             "name": "com.Lotus.LotsNew",
             "processId": 31418,
+            "exited": true
+        },
+        {
+            "deviceId": "RQCX407ZLTB",
+            "name": "com.Lotus.LotsNew",
+            "processId": 23051,
             "exited": false
         }
     ],
