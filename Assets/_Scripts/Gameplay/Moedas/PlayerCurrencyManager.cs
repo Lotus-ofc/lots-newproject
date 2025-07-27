@@ -1,11 +1,10 @@
 using UnityEngine;
 using TMPro;
-using Mapbox.Utils;
 
 public class PlayerCurrencyManager : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private TMP_Text coinsText; // arraste seu texto da UI aqui no Inspector
+    [SerializeField] private TMP_Text coinsText; // Arraste seu texto da UI aqui no Inspector
 
     [Header("Recompensa por distância")]
     public double rewardDistanceMeters = 1000; // 1 km para ganhar moedas
@@ -13,7 +12,8 @@ public class PlayerCurrencyManager : MonoBehaviour
 
     private int coins = 0;
 
-    private Vector2d lastPosition;
+    private double lastLatitude = 0;
+    private double lastLongitude = 0;
     private double distanceAccumulated = 0;
 
     void Start()
@@ -21,23 +21,24 @@ public class PlayerCurrencyManager : MonoBehaviour
         coins = 0;
         UpdateUI();
 
-        // Inicialize a última posição com algo válido
-        lastPosition = new Vector2d(0, 0);
+        // Inicialize a última posição com valores inválidos para detectar primeira atualização
+        lastLatitude = double.NaN;
+        lastLongitude = double.NaN;
     }
 
-    // Chame esse método para atualizar a posição do player e verificar se ganhou moedas
+    // Atualiza a posição do player e verifica se ganhou moedas
     public void UpdatePlayerLocation(double latitude, double longitude)
     {
-        Vector2d currentPosition = new Vector2d(latitude, longitude);
-
-        // Ignora se for a primeira vez
-        if (lastPosition.x == 0 && lastPosition.y == 0)
+        // Ignora se for a primeira vez (posição inválida)
+        if (double.IsNaN(lastLatitude) || double.IsNaN(lastLongitude))
         {
-            lastPosition = currentPosition;
+            lastLatitude = latitude;
+            lastLongitude = longitude;
             return;
         }
 
-        double distance = Vector2d.Distance(lastPosition, currentPosition) * 111320; // aprox metros entre lat/lon
+        // Calcula distância aproximada em metros usando fórmula simples para pequenos deslocamentos
+        double distance = HaversineDistance(lastLatitude, lastLongitude, latitude, longitude);
 
         distanceAccumulated += distance;
 
@@ -48,7 +49,8 @@ public class PlayerCurrencyManager : MonoBehaviour
             distanceAccumulated %= rewardDistanceMeters;
         }
 
-        lastPosition = currentPosition;
+        lastLatitude = latitude;
+        lastLongitude = longitude;
     }
 
     // Adiciona moedas e atualiza UI
@@ -65,10 +67,29 @@ public class PlayerCurrencyManager : MonoBehaviour
             coinsText.text = coins.ToString();
     }
 
-    // Se precisar, reseta moedas
+    // Reseta moedas
     public void ResetCoins()
     {
         coins = 0;
         UpdateUI();
+    }
+
+    // Função para calcular distância entre duas coordenadas geográficas em metros
+    private double HaversineDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double R = 6371000; // Raio da Terra em metros
+        double latRad1 = lat1 * Mathf.Deg2Rad;
+        double latRad2 = lat2 * Mathf.Deg2Rad;
+        double deltaLat = (lat2 - lat1) * Mathf.Deg2Rad;
+        double deltaLon = (lon2 - lon1) * Mathf.Deg2Rad;
+
+        double a = Mathf.Sin((float)(deltaLat / 2)) * Mathf.Sin((float)(deltaLat / 2)) +
+                   Mathf.Cos((float)latRad1) * Mathf.Cos((float)latRad2) *
+                   Mathf.Sin((float)(deltaLon / 2)) * Mathf.Sin((float)(deltaLon / 2));
+
+        double c = 2 * Mathf.Atan2(Mathf.Sqrt((float)a), Mathf.Sqrt((float)(1 - a)));
+
+        double distance = R * c;
+        return distance;
     }
 }

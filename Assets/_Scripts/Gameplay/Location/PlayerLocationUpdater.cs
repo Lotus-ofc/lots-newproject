@@ -1,42 +1,27 @@
-// PlayerLocationUpdater.cs
 using UnityEngine;
-using Mapbox.Unity.Map;
-using Mapbox.Utils;
 
 public class PlayerLocationUpdater : MonoBehaviour
 {
-    public AbstractMap map; // ATRIBUA NO INSPECTOR! (do GameObject Map)
-    public double latitude; // Latitude atual do player
+    public double latitude;  // Latitude atual do player
     public double longitude; // Longitude atual do player
 
     [Header("Suavização")]
     public float smoothTime = 0.3f; // Quanto menor, mais rápido responde; maior, mais macio
 
-    private Vector3 targetPosition; // Posição alvo no mundo Unity
-    private Vector3 velocity = Vector3.zero; // Usado internamente pelo SmoothDamp
+    private Vector3 targetPosition;  // Posição alvo no mundo Unity
+    private Vector3 velocity = Vector3.zero;  // Usado internamente pelo SmoothDamp
 
     void Start()
     {
-        if (map == null)
-        {
-            Debug.LogError("PlayerLocationUpdater: A referência 'map' (AbstractMap) não está atribuída no Inspector. Desativando.");
-            enabled = false;
-            return;
-        }
-
         // Inicializa a posição do player na primeira localização conhecida
-        Vector2d latLon = new Vector2d(latitude, longitude);
-        targetPosition = map.GeoToWorldPosition(latLon, true);
-        transform.position = targetPosition; // Define a posição inicial sem suavização
+        // A posição inicial é zero, deve ser atualizada externamente (ex: integração com MapLibre)
+        targetPosition = transform.position;
     }
 
     void Update()
     {
-        if (map == null || !enabled) return; // Se o mapa ou este script estiverem desativados, não faz nada
-
         // Recalcula a posição alvo no mundo Unity com base nas últimas coordenadas
-        Vector2d latLon = new Vector2d(latitude, longitude);
-        targetPosition = map.GeoToWorldPosition(latLon, true);
+        // IMPORTANTE: Você deve atualizar targetPosition manualmente ao converter lat/lon para posição Unity
 
         // Move suavemente o player para a posição alvo usando SmoothDamp
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
@@ -52,8 +37,18 @@ public class PlayerLocationUpdater : MonoBehaviour
     {
         latitude = lat;
         longitude = lon;
-        // A atualização da posição no mundo Unity e a suavização ocorrem no Update()
-        // para garantir que a lógica de suavização seja executada a cada frame.
+        // A conversão para posição Unity deve ser feita aqui ou externamente
+        // Exemplo: targetPosition = SuaFuncaoParaConverterLatLonEmPosicaoUnity(latitude, longitude);
+    }
+
+    /// <summary>
+    /// Atualiza diretamente a posição no mundo Unity (em metros ou unidade do jogo).
+    /// Deve ser chamada depois da conversão da lat/lon para mundo.
+    /// </summary>
+    /// <param name="pos">Posição no mundo Unity.</param>
+    public void SetWorldPosition(Vector3 pos)
+    {
+        targetPosition = pos;
     }
 
     /// <summary>

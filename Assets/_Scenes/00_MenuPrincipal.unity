@@ -379,51 +379,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833914732}
   m_CullTransparentMesh: 1
---- !u!1 &867729107
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 867729108}
-  - component: {fileID: 867729109}
-  m_Layer: 0
-  m_Name: LatLonFormatter
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &867729108
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 867729107}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 533.5256, y: 977.0593, z: 2.6305597}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &867729109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 867729107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af2cf7b68349e3b46b1f75b6c05aad52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  map: {fileID: 6335216667434934324}
 --- !u!1 &1156209097
 GameObject:
   m_ObjectHideFlags: 0
@@ -2770,7 +2725,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e45dab85c529e94496f5842ccada651, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  map: {fileID: 6335216667434934324}
   latitude: 0
   longitude: 0
   smoothTime: 0.3
@@ -3807,7 +3761,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 858fdd5009f4e75499970425ad5591b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  map: {fileID: 6335216667434934324}
   player: {fileID: 1206488105853236501}
   playerCurrencyManager: {fileID: 5639569068755783100}
 --- !u!114 &2102610829361853726
@@ -7660,7 +7613,6 @@ MonoBehaviour:
   longitude: -46.647198
   speed: 15
   directionDegrees: 0
-  map: {fileID: 6335216667434934324}
   player: {fileID: 1206488105853236501}
   playerCurrencyManager: {fileID: 5639569068755783100}
 --- !u!114 &5610946921466811328
@@ -8704,38 +8656,6 @@ RectTransform:
   m_AnchoredPosition: {x: -29.423645, y: 14.596466}
   m_SizeDelta: {x: 84.486206, y: 56.32683}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!4 &6227576082457569026
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6231283801174366356}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &6231283801174366356
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6227576082457569026}
-  - component: {fileID: 6335216667434934324}
-  m_Layer: 0
-  m_Name: Map
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!222 &6269820524058599640
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8837,114 +8757,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &6335216667434934324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6231283801174366356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd961b1c9541a4cee99686069ecce852, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _options:
-    locationOptions:
-      latitudeLongitude: -23.55214, -46.647198
-      zoom: 17
-    extentOptions:
-      extentType: 1
-      defaultExtents:
-        cameraBoundsOptions:
-          camera: {fileID: 0}
-          visibleBuffer: 0
-          disposeBuffer: 0
-        rangeAroundCenterOptions:
-          west: 4
-          north: 4
-          east: 4
-          south: 4
-        rangeAroundTransformOptions:
-          targetTransform: {fileID: 0}
-          visibleBuffer: 0
-          disposeBuffer: 0
-    placementOptions:
-      placementType: 1
-      snapMapToZero: 0
-    scalingOptions:
-      scalingType: 1
-      unityTileSize: 100
-    loadingTexture: {fileID: 2800000, guid: e2896a92727704803a9c422b043eae89, type: 3}
-    tileMaterial: {fileID: 2100000, guid: b9f23e9bce724fa4daac57ecded470b8, type: 2}
-  _initializeOnStart: 1
-  _imagery:
-    _layerProperty:
-      sourceType: 6
-      sourceOptions:
-        isActive: 1
-        layerSource:
-          Name: Streets
-          Id: mapbox://styles/lots-ofc/cmcvgwk7x00zy01s1aiji9ug3
-          Modified: 
-          UserName: 
-      rasterOptions:
-        useRetina: 1
-        useCompression: 0
-        useMipMap: 1
-  _terrain:
-    _layerProperty:
-      sourceType: 0
-      sourceOptions:
-        isActive: 1
-        layerSource:
-          Name: 
-          Id: mapbox.terrain-rgb
-          Modified: 
-          UserName: 
-      elevationLayerType: 0
-      requiredOptions:
-        exaggerationFactor: 1
-      colliderOptions:
-        addCollider: 0
-      modificationOptions:
-        sampleCount: 10
-        useRelativeHeight: 1
-        earthRadius: 1000
-      unityLayerOptions:
-        addToLayer: 0
-        layerId: 0
-      sideWallOptions:
-        isActive: 0
-        wallHeight: 10
-        wallMaterial: {fileID: 0}
-  _vectorData:
-    _layerProperty:
-      tileJsonData:
-        tileJSONLoaded: 0
-        LayerDisplayNames: []
-      _sourceType: 3
-      sourceOptions:
-        isActive: 0
-        layerSource:
-          Name: Mapbox Terrain
-          Id: mapbox.3d-buildings,mapbox.mapbox-streets-v7
-          Modified: 
-          UserName: 
-      useOptimizedStyle: 0
-      optimizedStyle:
-        Name: 
-        Id: 
-        Modified: 
-        UserName: 
-      performanceOptions:
-        isEnabled: 1
-        entityPerCoroutine: 20
-      vectorSubLayers: []
-      locationPrefabList: []
-  _tileProvider: {fileID: 0}
-  _previewOptions:
-    isPreviewEnabled: 0
 --- !u!114 &6384324120326036451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11228,74 +11040,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1001 &8866035682866751022
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 533.5256
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 977.0593
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2.6305597
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1149459071958200745, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2346403525676954575, guid: d577ec23da0aace4682fd722045fbc45,
-        type: 3}
-      propertyPath: m_Name
-      value: ------Conversores-----
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d577ec23da0aace4682fd722045fbc45, type: 3}
 --- !u!114 &8893732955435166060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11357,7 +11101,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.7166669, y: 0.11100001}
   m_AnchorMax: {x: 0.86200005, y: 0.19000001}
-  m_AnchoredPosition: {x: 1.5, y: -56.501953}
+  m_AnchoredPosition: {x: 1.5, y: -56.50244}
   m_SizeDelta: {x: 4, y: 3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8926865142784042463
@@ -11791,11 +11535,8 @@ SceneRoots:
   - {fileID: 176035597}
   - {fileID: 8662066964761423679}
   - {fileID: 4652006725353678894}
-  - {fileID: 8866035682866751022}
-  - {fileID: 867729108}
   - {fileID: 2831414653007323411}
   - {fileID: 1156209098}
   - {fileID: 1649333353}
-  - {fileID: 6227576082457569026}
   - {fileID: 593173781019554081}
   - {fileID: 5956192118946562267}
