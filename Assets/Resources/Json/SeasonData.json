@@ -1,0 +1,44 @@
+{
+  "seasons": [
+    {
+      "season": "Spring",
+      "items": [
+        { "itemName": "Semente de Cenoura", "itemType": 0, "price": 10, "value": 1 },
+        { "itemName": "Semente de Alface", "itemType": 0, "price": 8, "value": 1 },
+        { "itemName": "Semente de Tomate", "itemType": 0, "price": 12, "value": 1 },
+        { "itemName": "Muda de Flor", "itemType": 1, "price": 20, "value": 1 },
+        { "itemName": "Enxada", "itemType": 3, "price": 50, "value": 1 }
+      ]
+    },
+    {
+      "season": "Summer",
+      "items": [
+        { "itemName": "Semente de Milho", "itemType": 0, "price": 15, "value": 1 },
+        { "itemName": "Semente de Melancia", "itemType": 0, "price": 18, "value": 1 },
+        { "itemName": "Muda de Girassol", "itemType": 1, "price": 25, "value": 1 },
+        { "itemName": "Regador", "itemType": 3, "price": 40, "value": 1 },
+        { "itemName": "Foice", "itemType": 3, "price": 35, "value": 1 }
+      ]
+    },
+    {
+      "season": "Autumn",
+      "items": [
+        { "itemName": "Semente de Abóbora", "itemType": 0, "price": 20, "value": 1 },
+        { "itemName": "Semente de Beterraba", "itemType": 0, "price": 12, "value": 1 },
+        { "itemName": "Muda de Carvalho", "itemType": 1, "price": 30, "value": 1 },
+        { "itemName": "Cesto de Colheita", "itemType": 3, "price": 25, "value": 1 },
+        { "itemName": "Machado", "itemType": 3, "price": 45, "value": 1 }
+      ]
+    },
+    {
+      "season": "Winter",
+      "items": [
+        { "itemName": "Semente de Couve", "itemType": 0, "price": 14, "value": 1 },
+        { "itemName": "Semente de Espinafre", "itemType": 0, "price": 13, "value": 1 },
+        { "itemName": "Muda de Pinheiro", "itemType": 1, "price": 28, "value": 1 },
+        { "itemName": "Regador Grande", "itemType": 3, "price": 60, "value": 1 },
+        { "itemName": "Pá", "itemType": 3, "price": 30, "value": 1 }
+      ]
+    }
+  ]
+}

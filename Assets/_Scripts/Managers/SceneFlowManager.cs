@@ -55,11 +55,8 @@ public class SceneFlowManager : MonoBehaviour
     public Sprite eyeClosedSprite;
 
     [Header("Managers de Gameplay (GameObjects)")]
-    public GameObject currencyManagerGO;
     public GameObject uiManagerGO;
     public GameObject playerGO;
-
-    private PlayerCurrencyManager _playerCurrencyManager;
 
     private bool isLoginPasswordVisible = false;
     private bool isRegisterPasswordVisible = false;
@@ -250,26 +247,6 @@ public class SceneFlowManager : MonoBehaviour
 
     #endregion
 
-    #region Helpers
-
-    private void ClearInputErrors()
-    {
-        loginEmailErrorImage?.gameObject.SetActive(false);
-        loginPasswordErrorImage?.gameObject.SetActive(false);
-        loginErrorImage?.gameObject.SetActive(false);
-        registerEmailErrorImage?.gameObject.SetActive(false);
-        registerPasswordErrorImage?.gameObject.SetActive(false);
-        registerConfirmPasswordErrorImage?.gameObject.SetActive(false);
-    }
-
-    private bool IsValidEmail(string email)
-    {
-        try { var addr = new System.Net.Mail.MailAddress(email); return addr.Address == email; }
-        catch { return false; }
-    }
-
-    #endregion
-
     #region Logout
 
     private void OnLogoutButtonClicked()
@@ -282,54 +259,20 @@ public class SceneFlowManager : MonoBehaviour
 
     #endregion
 
-    #region Firebase Events
-
-    private void OnFirebaseAuthFailed(string msg)
-    {
-        ClearInputErrors();
-        ShowOnlyPanel(loginPanel);
-        ResetFields();
-        loginEmailErrorImage?.gameObject.SetActive(true);
-        loginPasswordErrorImage?.gameObject.SetActive(true);
-        loginErrorImage?.gameObject.SetActive(true);
-        ShowFeedback(msg);
-    }
-
-    private void OnFirebaseAuthSuccess()
-    {
-        StartCoroutine(ShowLoadingThenPressToPlay());
-    }
-
-    private IEnumerator ShowLoadingThenPressToPlay()
-    {
-        loadingPanel?.SetActive(true);
-        yield return new WaitForSeconds(4.6f);
-        loadingPanel?.SetActive(false);
-        ShowPressToPlayPanel();
-        ShowFeedback("Login bem-sucedido! Aperte para jogar!");
-    }
-
-    private void OnFirebaseLogout()
-    {
-        ShowFeedback("Você foi deslogado.");
-        ShowMainMenuPanel();
-        SetGameplayManagersActive(false);
-    }
-
-    #endregion
+    #region Gameplay Managers
 
     public void InitializeGameplayManagers()
     {
         SetGameplayManagersActive(true);
-        _playerCurrencyManager = currencyManagerGO?.GetComponent<PlayerCurrencyManager>();
     }
 
     private void SetGameplayManagersActive(bool isActive)
     {
-        currencyManagerGO?.SetActive(isActive);
         uiManagerGO?.SetActive(isActive);
         playerGO?.SetActive(isActive);
     }
+
+    #endregion
 
     #region Feedback e Utils
 
@@ -383,6 +326,12 @@ public class SceneFlowManager : MonoBehaviour
         UpdateToggleIcon(registerTogglePasswordImage2, false);
     }
 
+    private bool IsValidEmail(string email)
+    {
+        try { var addr = new System.Net.Mail.MailAddress(email); return addr.Address == email; }
+        catch { return false; }
+    }
+
     private void SetInputFieldPasswordMode(TMP_InputField input, bool visible)
     {
         if (input == null) return;
@@ -394,6 +343,52 @@ public class SceneFlowManager : MonoBehaviour
     {
         if (img != null && eyeOpenSprite != null && eyeClosedSprite != null)
             img.sprite = visible ? eyeOpenSprite : eyeClosedSprite;
+    }
+
+    private void ClearInputErrors()
+    {
+        loginEmailErrorImage?.gameObject.SetActive(false);
+        loginPasswordErrorImage?.gameObject.SetActive(false);
+        loginErrorImage?.gameObject.SetActive(false);
+        registerEmailErrorImage?.gameObject.SetActive(false);
+        registerPasswordErrorImage?.gameObject.SetActive(false);
+        registerConfirmPasswordErrorImage?.gameObject.SetActive(false);
+    }
+
+    #endregion
+
+    #region Firebase Events
+
+    private void OnFirebaseAuthFailed(string msg)
+    {
+        ClearInputErrors();
+        ShowOnlyPanel(loginPanel);
+        ResetFields();
+        loginEmailErrorImage?.gameObject.SetActive(true);
+        loginPasswordErrorImage?.gameObject.SetActive(true);
+        loginErrorImage?.gameObject.SetActive(true);
+        ShowFeedback(msg);
+    }
+
+    private void OnFirebaseAuthSuccess()
+    {
+        StartCoroutine(ShowLoadingThenPressToPlay());
+    }
+
+    private IEnumerator ShowLoadingThenPressToPlay()
+    {
+        loadingPanel?.SetActive(true);
+        yield return new WaitForSeconds(4.6f);
+        loadingPanel?.SetActive(false);
+        ShowPressToPlayPanel();
+        ShowFeedback("Login bem-sucedido! Aperte para jogar!");
+    }
+
+    private void OnFirebaseLogout()
+    {
+        ShowFeedback("Você foi deslogado.");
+        ShowMainMenuPanel();
+        SetGameplayManagersActive(false);
     }
 
     #endregion
