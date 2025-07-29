@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
-using System.Globalization;
 
 public class SceneFlowManager : MonoBehaviour
 {
@@ -56,18 +55,11 @@ public class SceneFlowManager : MonoBehaviour
     public Sprite eyeClosedSprite;
 
     [Header("Managers de Gameplay (GameObjects)")]
-    public GameObject locationPermissionManagerGO;
     public GameObject currencyManagerGO;
-    public GameObject locationProviderGO;
     public GameObject uiManagerGO;
-    public GameObject playerLocationUpdaterGO;
     public GameObject playerGO;
 
-    private LocationPermissionManager _locationPermissionManager;
     private PlayerCurrencyManager _playerCurrencyManager;
-    private PlayerLocationProvider _playerLocationProvider;
-    private EditorLocationProvider _editorLocationProvider;
-    private PlayerLocationUpdater _playerLocationUpdater;
 
     private bool isLoginPasswordVisible = false;
     private bool isRegisterPasswordVisible = false;
@@ -329,21 +321,13 @@ public class SceneFlowManager : MonoBehaviour
     public void InitializeGameplayManagers()
     {
         SetGameplayManagersActive(true);
-        _locationPermissionManager = locationPermissionManagerGO?.GetComponent<LocationPermissionManager>();
         _playerCurrencyManager = currencyManagerGO?.GetComponent<PlayerCurrencyManager>();
-        _editorLocationProvider = locationProviderGO?.GetComponent<EditorLocationProvider>();
-        if (_editorLocationProvider == null)
-            _playerLocationProvider = locationProviderGO?.GetComponent<PlayerLocationProvider>();
-        _playerLocationUpdater = playerLocationUpdaterGO?.GetComponent<PlayerLocationUpdater>();
     }
 
     private void SetGameplayManagersActive(bool isActive)
     {
-        locationPermissionManagerGO?.SetActive(isActive);
         currencyManagerGO?.SetActive(isActive);
-        locationProviderGO?.SetActive(isActive);
         uiManagerGO?.SetActive(isActive);
-        playerLocationUpdaterGO?.SetActive(isActive);
         playerGO?.SetActive(isActive);
     }
 
