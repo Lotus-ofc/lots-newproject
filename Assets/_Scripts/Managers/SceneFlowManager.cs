@@ -12,8 +12,12 @@ public class SceneFlowManager : MonoBehaviour
     public GameObject registerPanel;
     public GameObject mainMenuPanel;
     public GameObject pressToPlayPanel;
-    public GameObject gameplayPanel;
     public GameObject loadingPanel;
+
+    [Header("Canvas")]
+    public Canvas gameplayCanvas;
+    public Canvas mainMenuCanvas;
+
 
     [Header("Feedback")]
     public TextMeshProUGUI mensagemFeedback;
@@ -54,14 +58,9 @@ public class SceneFlowManager : MonoBehaviour
     public Sprite eyeOpenSprite;
     public Sprite eyeClosedSprite;
 
-    [Header("Managers de Gameplay (GameObjects)")]
-    public GameObject uiManagerGO;
-    public GameObject playerGO;
-
-    private bool isLoginPasswordVisible = false;
-    private bool isRegisterPasswordVisible = false;
-    private bool isRegisterConfirmPasswordVisible = false;
-
+    private bool isLoginPasswordVisible;
+    private bool isRegisterPasswordVisible;
+    private bool isRegisterConfirmPasswordVisible;
     private Coroutine feedbackCoroutine;
 
     private void Awake()
@@ -71,30 +70,15 @@ public class SceneFlowManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        else Destroy(gameObject);
     }
 
     private void Start()
     {
         mensagemFeedback?.gameObject.SetActive(false);
         loadingPanel?.SetActive(false);
-
-        playButton?.onClick.AddListener(ShowGameplayPanel);
-        loginButton?.onClick.AddListener(OnLoginButtonClicked);
-        loginBackButton?.onClick.AddListener(ShowMainMenuPanel);
-        forgotPasswordButton?.onClick.AddListener(OnForgotPasswordClicked);
-        loginTogglePasswordVisibilityButton?.onClick.AddListener(ToggleLoginPasswordVisibility);
-        registerButton?.onClick.AddListener(OnRegisterButtonClicked);
-        registerBackButton?.onClick.AddListener(ShowMainMenuPanel);
-        registerTogglePasswordVisibilityButton1?.onClick.AddListener(ToggleRegisterPasswordVisibility);
-        registerTogglePasswordVisibilityButton2?.onClick.AddListener(ToggleRegisterConfirmPasswordVisibility);
-        logoutButton?.onClick.AddListener(OnLogoutButtonClicked);
-
+        SetupButtonEvents();
         ResetFields();
-        SetGameplayManagersActive(false);
         ShowOnlyPanel(loadingPanel);
     }
 
@@ -118,7 +102,19 @@ public class SceneFlowManager : MonoBehaviour
         }
     }
 
-    #region Panels
+    private void SetupButtonEvents()
+    {
+        playButton?.onClick.AddListener(ShowGameplayPanel);
+        loginButton?.onClick.AddListener(OnLoginButtonClicked);
+        loginBackButton?.onClick.AddListener(() => ShowOnlyPanel(mainMenuPanel));
+        forgotPasswordButton?.onClick.AddListener(OnForgotPasswordClicked);
+        loginTogglePasswordVisibilityButton?.onClick.AddListener(() => TogglePasswordVisibility(loginPasswordInput, ref isLoginPasswordVisible, loginTogglePasswordImage));
+        registerButton?.onClick.AddListener(OnRegisterButtonClicked);
+        registerBackButton?.onClick.AddListener(() => ShowOnlyPanel(mainMenuPanel));
+        registerTogglePasswordVisibilityButton1?.onClick.AddListener(() => TogglePasswordVisibility(registerPasswordInput, ref isRegisterPasswordVisible, registerTogglePasswordImage1));
+        registerTogglePasswordVisibilityButton2?.onClick.AddListener(() => TogglePasswordVisibility(registerConfirmPasswordInput, ref isRegisterConfirmPasswordVisible, registerTogglePasswordImage2));
+        logoutButton?.onClick.AddListener(OnLogoutButtonClicked);
+    }
 
     private void ShowOnlyPanel(GameObject panel)
     {
@@ -126,26 +122,26 @@ public class SceneFlowManager : MonoBehaviour
         registerPanel?.SetActive(false);
         mainMenuPanel?.SetActive(false);
         pressToPlayPanel?.SetActive(false);
-        gameplayPanel?.SetActive(false);
         loadingPanel?.SetActive(false);
+        gameplayCanvas?.gameObject.SetActive(false);
 
         panel?.SetActive(true);
         ClearFeedback();
     }
 
-    public void ShowMainMenuPanel() { ShowOnlyPanel(mainMenuPanel); ResetFields(); }
-    public void ShowLoginPanel() { ShowOnlyPanel(loginPanel); ResetFields(); }
-    public void ShowRegisterPanel() { ShowOnlyPanel(registerPanel); ResetFields(); }
-    public void ShowPressToPlayPanel() { ShowOnlyPanel(pressToPlayPanel); InitializeGameplayManagers(); }
-    public void ShowGameplayPanel() { ShowOnlyPanel(gameplayPanel); ShowFeedback("Bem-vindo à Gameplay!"); }
+    public void ShowGameplayPanel()
+    {
+        gameplayCanvas?.gameObject.SetActive(true);
+        ClearFeedback();
+        ShowFeedback("Bem-vindo à Gameplay!");
+    }
 
-    #endregion
-
-    #region Login
+    #region Login / Register / Logout
 
     private void OnLoginButtonClicked()
     {
         ClearInputErrors();
+
         if (string.IsNullOrEmpty(loginEmailInput.text) || string.IsNullOrEmpty(loginPasswordInput.text))
         {
             loginEmailErrorImage?.gameObject.SetActive(string.IsNullOrEmpty(loginEmailInput.text));
@@ -166,32 +162,6 @@ public class SceneFlowManager : MonoBehaviour
         ShowFeedback("Tentando logar...");
         FirebaseManager.Instance?.LoginUser(loginEmailInput.text, loginPasswordInput.text);
     }
-
-    private void OnForgotPasswordClicked()
-    {
-        ClearInputErrors();
-        if (string.IsNullOrEmpty(loginEmailInput.text))
-        {
-            loginEmailErrorImage?.gameObject.SetActive(true);
-            loginErrorImage?.gameObject.SetActive(true);
-            ShowFeedback("Digite o email para resetar a senha.");
-            return;
-        }
-
-        ShowFeedback("Enviando email de reset...");
-        FirebaseManager.Instance?.SendPasswordResetEmail(loginEmailInput.text);
-    }
-
-    private void ToggleLoginPasswordVisibility()
-    {
-        isLoginPasswordVisible = !isLoginPasswordVisible;
-        SetInputFieldPasswordMode(loginPasswordInput, isLoginPasswordVisible);
-        UpdateToggleIcon(loginTogglePasswordImage, isLoginPasswordVisible);
-    }
-
-    #endregion
-
-    #region Register
 
     private void OnRegisterButtonClicked()
     {
@@ -231,50 +201,35 @@ public class SceneFlowManager : MonoBehaviour
         FirebaseManager.Instance?.RegisterUser(registerEmailInput.text, registerPasswordInput.text);
     }
 
-    private void ToggleRegisterPasswordVisibility()
+    private void OnForgotPasswordClicked()
     {
-        isRegisterPasswordVisible = !isRegisterPasswordVisible;
-        SetInputFieldPasswordMode(registerPasswordInput, isRegisterPasswordVisible);
-        UpdateToggleIcon(registerTogglePasswordImage1, isRegisterPasswordVisible);
+        if (string.IsNullOrEmpty(loginEmailInput.text))
+        {
+            loginEmailErrorImage?.gameObject.SetActive(true);
+            ShowFeedback("Digite o email para resetar a senha.");
+            return;
+        }
+
+        ShowFeedback("Enviando email de reset...");
+        FirebaseManager.Instance?.SendPasswordResetEmail(loginEmailInput.text);
     }
-
-    private void ToggleRegisterConfirmPasswordVisibility()
-    {
-        isRegisterConfirmPasswordVisible = !isRegisterConfirmPasswordVisible;
-        SetInputFieldPasswordMode(registerConfirmPasswordInput, isRegisterConfirmPasswordVisible);
-        UpdateToggleIcon(registerTogglePasswordImage2, isRegisterConfirmPasswordVisible);
-    }
-
-    #endregion
-
-    #region Logout
 
     private void OnLogoutButtonClicked()
     {
         FirebaseManager.Instance?.Logout();
+        ShowOnlyPanel(mainMenuPanel);
         ShowFeedback("Você foi deslogado.");
-        ShowMainMenuPanel();
-        SetGameplayManagersActive(false);
     }
+
+    public void ShowLoginPanel()
+{
+    ShowOnlyPanel(loginPanel);
+}
+
 
     #endregion
 
-    #region Gameplay Managers
-
-    public void InitializeGameplayManagers()
-    {
-        SetGameplayManagersActive(true);
-    }
-
-    private void SetGameplayManagersActive(bool isActive)
-    {
-        uiManagerGO?.SetActive(isActive);
-        playerGO?.SetActive(isActive);
-    }
-
-    #endregion
-
-    #region Feedback e Utils
+    #region Feedback / Utils
 
     public void ShowFeedback(string msg)
     {
@@ -288,21 +243,31 @@ public class SceneFlowManager : MonoBehaviour
     public void ClearFeedback()
     {
         if (feedbackCoroutine != null) StopCoroutine(feedbackCoroutine);
-        if (mensagemFeedback != null)
-        {
-            mensagemFeedback.text = "";
-            mensagemFeedback.gameObject.SetActive(false);
-        }
+        mensagemFeedback?.gameObject.SetActive(false);
     }
 
     private IEnumerator HideFeedbackAfterSeconds(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        if (mensagemFeedback != null)
-        {
-            mensagemFeedback.text = "";
-            mensagemFeedback.gameObject.SetActive(false);
-        }
+        mensagemFeedback?.gameObject.SetActive(false);
+    }
+
+    private void TogglePasswordVisibility(TMP_InputField input, ref bool isVisible, Image icon)
+    {
+        isVisible = !isVisible;
+        input.contentType = isVisible ? TMP_InputField.ContentType.Standard : TMP_InputField.ContentType.Password;
+        input.ForceLabelUpdate();
+        if (icon != null) icon.sprite = isVisible ? eyeOpenSprite : eyeClosedSprite;
+    }
+
+    private void ClearInputErrors()
+    {
+        loginEmailErrorImage?.gameObject.SetActive(false);
+        loginPasswordErrorImage?.gameObject.SetActive(false);
+        loginErrorImage?.gameObject.SetActive(false);
+        registerEmailErrorImage?.gameObject.SetActive(false);
+        registerPasswordErrorImage?.gameObject.SetActive(false);
+        registerConfirmPasswordErrorImage?.gameObject.SetActive(false);
     }
 
     private void ResetFields()
@@ -316,43 +281,12 @@ public class SceneFlowManager : MonoBehaviour
         isLoginPasswordVisible = false;
         isRegisterPasswordVisible = false;
         isRegisterConfirmPasswordVisible = false;
-
-        SetInputFieldPasswordMode(loginPasswordInput, false);
-        SetInputFieldPasswordMode(registerPasswordInput, false);
-        SetInputFieldPasswordMode(registerConfirmPasswordInput, false);
-
-        UpdateToggleIcon(loginTogglePasswordImage, false);
-        UpdateToggleIcon(registerTogglePasswordImage1, false);
-        UpdateToggleIcon(registerTogglePasswordImage2, false);
     }
 
     private bool IsValidEmail(string email)
     {
         try { var addr = new System.Net.Mail.MailAddress(email); return addr.Address == email; }
         catch { return false; }
-    }
-
-    private void SetInputFieldPasswordMode(TMP_InputField input, bool visible)
-    {
-        if (input == null) return;
-        input.contentType = visible ? TMP_InputField.ContentType.Standard : TMP_InputField.ContentType.Password;
-        input.ForceLabelUpdate();
-    }
-
-    private void UpdateToggleIcon(Image img, bool visible)
-    {
-        if (img != null && eyeOpenSprite != null && eyeClosedSprite != null)
-            img.sprite = visible ? eyeOpenSprite : eyeClosedSprite;
-    }
-
-    private void ClearInputErrors()
-    {
-        loginEmailErrorImage?.gameObject.SetActive(false);
-        loginPasswordErrorImage?.gameObject.SetActive(false);
-        loginErrorImage?.gameObject.SetActive(false);
-        registerEmailErrorImage?.gameObject.SetActive(false);
-        registerPasswordErrorImage?.gameObject.SetActive(false);
-        registerConfirmPasswordErrorImage?.gameObject.SetActive(false);
     }
 
     #endregion
@@ -363,10 +297,6 @@ public class SceneFlowManager : MonoBehaviour
     {
         ClearInputErrors();
         ShowOnlyPanel(loginPanel);
-        ResetFields();
-        loginEmailErrorImage?.gameObject.SetActive(true);
-        loginPasswordErrorImage?.gameObject.SetActive(true);
-        loginErrorImage?.gameObject.SetActive(true);
         ShowFeedback(msg);
     }
 
@@ -377,18 +307,27 @@ public class SceneFlowManager : MonoBehaviour
 
     private IEnumerator ShowLoadingThenPressToPlay()
     {
-        loadingPanel?.SetActive(true);
+        ShowOnlyPanel(loadingPanel);
         yield return new WaitForSeconds(4.6f);
-        loadingPanel?.SetActive(false);
-        ShowPressToPlayPanel();
+
+        // Desativa main menu canvas
+        mainMenuCanvas?.gameObject.SetActive(false);
+
+        // Ativa gameplay canvas
+        gameplayCanvas?.gameObject.SetActive(true);
+
+        // Ativa painel "Aperte para jogar"
+        pressToPlayPanel?.SetActive(true);
+
         ShowFeedback("Login bem-sucedido! Aperte para jogar!");
     }
 
+
+
     private void OnFirebaseLogout()
     {
+        ShowOnlyPanel(mainMenuPanel);
         ShowFeedback("Você foi deslogado.");
-        ShowMainMenuPanel();
-        SetGameplayManagersActive(false);
     }
 
     #endregion

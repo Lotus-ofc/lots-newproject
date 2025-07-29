@@ -1,97 +1,129 @@
 using UnityEngine;
 
-/// <summary>
-/// Segue o player com Free Look (arrastar dedo ou mouse no editor)
-/// e recentraliza ao apertar o botão.
-/// Tem zoom (pinch) no mobile e scroll no editor.
-/// </summary>
-public class CameraFollowController : MonoBehaviour
+public class CameraFarmController : MonoBehaviour
 {
-    public Transform player;
+    [Header("Configuração Inicial")]
+    public Vector3 initialTargetPosition = new Vector3(-1.6f, 0f, -6f);
+    public float initialZoom = 1f;
 
-    [Header("Offset e movimento")]
-    public Vector3 offset = new Vector3(0, 10f, -10f);
-    public float followSpeed = 5f;
+    [Header("Controle de Pan")]
+    public float panSpeed = 0.5f;            // Sensibilidade do arrastar
+    public Vector2 panLimitX = new Vector2(-20f, 20f);
+    public Vector2 panLimitZ = new Vector2(-20f, 20f);
 
-    [Header("Rotação")]
-    public float rotationLerpSpeed = 5f;
-    private float currentYaw = 0f;
-    private bool followRotation = true;
-
-    [Header("Zoom")]
-    public float currentZoom = 1f;
+    [Header("Controle de Zoom")]
     public float zoomSpeed = 0.5f;
-    public float minZoom = 0.5f;
+    public float minZoom = 0.8f;
     public float maxZoom = 2f;
 
-    [Header("Free Look")]
-    public float orbitSpeed = 100f;
+    [Header("Ângulo Fixo da Câmera")]
+    public float pitch = 50f;     // Inclinação pra baixo
+    public float yaw = 30f;       // Rotação lateral (meio de lado)
+
+    // Estado interno
+    private Vector3 targetPosition;
+    private float currentZoom;
+    private Vector3 velocity;  // Para SmoothDamp
+
+    void Start()
+    {
+        // Inicializa posição e zoom
+        targetPosition = initialTargetPosition;
+        currentZoom = Mathf.Clamp(initialZoom, minZoom, maxZoom);
+
+        // Posiciona a câmera instantaneamente no ponto correto
+        SnapCameraToTarget();
+    }
 
     void Update()
     {
-        if (player == null) return;
+        HandlePanInput();
+        HandleZoomInput();
+    }
 
-        // Touch arrasta → orbit livre
-        if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
-        {
-            followRotation = false;
-            Touch touch = Input.GetTouch(0);
-            currentYaw += touch.deltaPosition.x * orbitSpeed * Time.deltaTime;
-        }
+    void LateUpdate()
+    {
+        // Calcula a posição desejada da câmera com base no target + zoom + ângulo
+        Vector3 offset = Quaternion.Euler(pitch, yaw, 0) * new Vector3(0, 0, -10f) * currentZoom;
+        Vector3 desiredPosition = targetPosition + offset;
 
-        // Pinch para zoom no mobile
-        if (Input.touchCount == 2)
-        {
-            Touch t0 = Input.GetTouch(0);
-            Touch t1 = Input.GetTouch(1);
+        // Move suavemente a câmera para a posição desejada
+        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, 0.15f);
+        transform.rotation = Quaternion.Euler(pitch, yaw, 0);
+    }
 
-            float prevMag = (t0.position - t0.deltaPosition - (t1.position - t1.deltaPosition)).magnitude;
-            float currentMag = (t0.position - t1.position).magnitude;
-            float diff = currentMag - prevMag;
-
-            currentZoom -= diff * zoomSpeed * Time.deltaTime;
-            currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
-        }
+    private void HandlePanInput()
+    {
+        Vector3 panDelta = Vector3.zero;
 
 #if UNITY_EDITOR || UNITY_STANDALONE
-        // Scroll do mouse para zoom no editor/standalone
+        if (Input.GetMouseButton(0))
+        {
+            float dx = -Input.GetAxis("Mouse X") * panSpeed;
+            float dz = -Input.GetAxis("Mouse Y") * panSpeed;
+            panDelta = new Vector3(dx, 0, dz);
+        }
+#endif
+
+        if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
+        {
+            Touch t = Input.GetTouch(0);
+            float dx = -t.deltaPosition.x * panSpeed * Time.deltaTime;
+            float dz = -t.deltaPosition.y * panSpeed * Time.deltaTime;
+            panDelta = new Vector3(dx, 0, dz);
+        }
+
+        // Aplica pan no target
+        targetPosition += panDelta;
+
+        // Limita dentro dos limites configurados
+        targetPosition.x = Mathf.Clamp(targetPosition.x, panLimitX.x, panLimitX.y);
+        targetPosition.z = Mathf.Clamp(targetPosition.z, panLimitZ.x, panLimitZ.y);
+    }
+
+    private void HandleZoomInput()
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(scroll) > 0.01f)
         {
             currentZoom -= scroll * zoomSpeed;
             currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
         }
-
-        // Mouse arrasta → orbit livre
-        if (Input.GetMouseButton(0))
-        {
-            followRotation = false;
-            currentYaw += Input.GetAxis("Mouse X") * orbitSpeed * Time.deltaTime * 100f;
-        }
 #endif
-    }
 
-    void LateUpdate()
-    {
-        if (player == null) return;
-
-        if (followRotation)
+        if (Input.touchCount == 2)
         {
-            currentYaw = Mathf.LerpAngle(currentYaw, player.eulerAngles.y, rotationLerpSpeed * Time.deltaTime);
+            Touch t0 = Input.GetTouch(0);
+            Touch t1 = Input.GetTouch(1);
+
+            float prevDist = (t0.position - t0.deltaPosition - (t1.position - t1.deltaPosition)).magnitude;
+            float currDist = (t0.position - t1.position).magnitude;
+
+            float delta = currDist - prevDist;
+            currentZoom -= delta * zoomSpeed * Time.deltaTime * 0.1f;
+            currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
         }
-
-        Vector3 desiredPosition = player.position + Quaternion.Euler(0, currentYaw, 0) * offset * currentZoom;
-        transform.position = Vector3.Lerp(transform.position, desiredPosition, followSpeed * Time.deltaTime);
-
-        Quaternion targetRotation = Quaternion.Euler(30f, currentYaw, 0);
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationLerpSpeed * Time.deltaTime);
     }
 
     /// <summary>
-    /// Chama no botão para voltar a seguir o player.
+    /// Posiciona a câmera no centro passado, ou no centro inicial se nada for passado.
+    /// Use para resetar ou focar em pontos específicos.
     /// </summary>
-    public void CenterCamera()
+    public void CenterCamera(Vector3? newCenter = null)
     {
-        followRotation = true;
+        targetPosition = newCenter ?? initialTargetPosition;
+        SnapCameraToTarget();
+    }
+
+    /// <summary>
+    /// Posiciona a câmera instantaneamente no target com zoom e rotação atuais.
+    /// </summary>
+    private void SnapCameraToTarget()
+    {
+        Vector3 offset = Quaternion.Euler(pitch, yaw, 0) * new Vector3(0, 0, -5f) * currentZoom;
+        transform.position = targetPosition + offset;
+        transform.rotation = Quaternion.Euler(pitch, yaw, 0);
+        velocity = Vector3.zero;  // Reseta a suavização para evitar delay na posição inicial
     }
 }

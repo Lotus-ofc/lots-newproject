@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6328990898149446232}
   m_Layer: 0
-  m_Name: ______UIJogo_______
+  m_Name: ______UIGameplay_______
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
