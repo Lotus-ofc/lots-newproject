@@ -67,9 +67,13 @@ public class SceneFlowManager : MonoBehaviour
     public GameObject inventoryPanel;
     public GameObject shopPanel;
 
-    [Header("Botões Extras")]
-    public Button seasonButton;
+    [Header("Botão para voltar")]
     public Button closePanelsButton;
+
+    [Header("Botões Gameplay")]
+    public Button seasonButton;
+    public Button inventoryButton;
+    public Button shopButton;
 
     private void Awake()
     {
@@ -123,9 +127,10 @@ public class SceneFlowManager : MonoBehaviour
         registerTogglePasswordVisibilityButton2?.onClick.AddListener(() => TogglePasswordVisibility(registerConfirmPasswordInput, ref isRegisterConfirmPasswordVisible, registerTogglePasswordImage2));
         logoutButton?.onClick.AddListener(OnLogoutButtonClicked);
 
-        // Novos botões extras
+        // Botões gameplay
         seasonButton?.onClick.AddListener(ToggleSeasonsPanel);
-        closePanelsButton?.onClick.AddListener(CloseAllPanels);
+        inventoryButton?.onClick.AddListener(ToggleInventoryPanel);
+        closePanelsButton?.onClick.AddListener(CloseAllPanelsAndShowButtons);
     }
 
     private void ShowOnlyPanel(GameObject panel)
@@ -302,32 +307,43 @@ public class SceneFlowManager : MonoBehaviour
 
     #endregion
 
-    #region Botões Extras
+    #region Botões Gameplay
 
-    /// <summary>
-    /// Abre ou fecha o painel de estações e oculta/mostra o botão.
-    /// </summary>
     public void ToggleSeasonsPanel()
     {
         if (seasonsPanel == null || seasonButton == null) return;
 
         bool isActive = seasonsPanel.activeSelf;
         seasonsPanel.SetActive(!isActive);
-        seasonButton.gameObject.SetActive(isActive); // se estava aberto, mostra o botão
+        seasonButton.gameObject.SetActive(isActive);
     }
 
-    /// <summary>
-    /// Fecha todos os painéis extras: inventory, shop e seasons.
-    /// </summary>
-    public void CloseAllPanels()
-    {
-        inventoryPanel?.SetActive(false);
-        shopPanel?.SetActive(false);
-        seasonsPanel?.SetActive(false);
+    public void ToggleInventoryPanel()
+{
+    if (inventoryPanel == null) return;
 
-        // Garante que o botão de estações reapareça
-        if (seasonButton != null) seasonButton.gameObject.SetActive(true);
-    }
+    bool isActive = inventoryPanel.activeSelf;
+    inventoryPanel.SetActive(!isActive);
+}
+
+
+
+    public void CloseAllPanelsAndShowButtons()
+{
+    // Fecha todos os painéis de gameplay, estejam ativos ou não
+    if (inventoryPanel != null) inventoryPanel.SetActive(false);
+    if (shopPanel != null) shopPanel.SetActive(false);
+    if (seasonsPanel != null) seasonsPanel.SetActive(false);
+
+    // Reativa todos os botões de gameplay
+    if (inventoryButton != null) inventoryButton.gameObject.SetActive(true);
+    if (seasonButton != null) seasonButton.gameObject.SetActive(true);
+    if (shopButton != null) shopButton.gameObject.SetActive(true);
+
+    // (Opcional) Feedback visual se quiser
+    ShowFeedback("Todos os painéis foram fechados.");
+}
+
 
     #endregion
 

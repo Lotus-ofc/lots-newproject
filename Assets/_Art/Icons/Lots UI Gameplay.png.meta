@@ -123,13 +123,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BackButton_Image
+      name: Lots UI Gameplay_0
       rect:
         serializedVersion: 2
-        x: 57
-        y: 1765
-        width: 100
-        height: 93
+        x: 120
+        y: 1884
+        width: 6
+        height: 6
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,19 +137,397 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 48cc5ad468efe454b9b754ba7114bbe0
-      internalID: -117806262
+      spriteID: 1ec38f24067117b4e9ff318aa3d9ce2c
+      internalID: -393723279
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Separador_Image
+      name: Lots UI Gameplay_1
       rect:
         serializedVersion: 2
-        x: 199
-        y: 1678
-        width: 683
+        x: 966
+        y: 1854
+        width: 12
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3dd7bed3b71f4f44fb3a42b460cc496c
+      internalID: -18982271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_2
+      rect:
+        serializedVersion: 2
+        x: 942
+        y: 1872
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4d87725ddda20204eb3b153a909a7ce0
+      internalID: -1541573450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_3
+      rect:
+        serializedVersion: 2
+        x: 984
+        y: 1868
+        width: 6
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e065bdad72bf604fbda97dbe2926a76
+      internalID: -1649996333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_4
+      rect:
+        serializedVersion: 2
+        x: 1002
+        y: 1842
+        width: 30
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d31f7082e650bd4cb6a3913b08e28e3
+      internalID: -2051490275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_5
+      rect:
+        serializedVersion: 2
+        x: 986
+        y: 1860
+        width: 4
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 875c95538074a5e4a87b8a5c72c80ee1
+      internalID: 1263816373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_6
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 1764
+        width: 90
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a604a24d096fea944b1e61e7b15863b2
+      internalID: 434932989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_7
+      rect:
+        serializedVersion: 2
+        x: 894
+        y: 1818
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3ad7e3955ffc35847a28ebdb02b4a751
+      internalID: 1577612777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_8
+      rect:
+        serializedVersion: 2
+        x: 900
+        y: 1734
+        width: 150
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cfc66e8f79243854d8962db972f09136
+      internalID: 233388365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_9
+      rect:
+        serializedVersion: 2
+        x: 894
+        y: 1794
+        width: 30
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 122ccaf722dc92f49ab01255940fff3c
+      internalID: 1115776683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_10
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 1764
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fb6d386e312c2814c8c0a0f8e48b381c
+      internalID: 152068466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_11
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 1734
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fd36287cbf74626429c8f8533809a272
+      internalID: -801566895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_12
+      rect:
+        serializedVersion: 2
+        x: 972
+        y: 1728
+        width: 18
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6bb95aa229f86cc47beb6acc638a0b30
+      internalID: 1771530041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_13
+      rect:
+        serializedVersion: 2
+        x: 960
+        y: 1728
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56fd6888f72055442af756c49f030712
+      internalID: 1856886637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_14
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 1682
+        width: 673
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1c9342770c2532a49953a29fb70e5ca8
+      internalID: -2001160437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_15
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 185
+        width: 182
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b148fe3e82b016f41910a506568f5f79
+      internalID: 90268343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_16
+      rect:
+        serializedVersion: 2
+        x: 612
+        y: 336
+        width: 36
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7ec6b99fc5bdfa47824a301b49529bf
+      internalID: -1182360799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_17
+      rect:
+        serializedVersion: 2
+        x: 828
+        y: 306
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f5d7d283a27c5394cb6d574e468bf6b1
+      internalID: -889156959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_18
+      rect:
+        serializedVersion: 2
+        x: 912
+        y: 306
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1f3582a18bdb6741a40f8b4e8e5d0bb
+      internalID: -1363111664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_19
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 258
+        width: 24
         height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -158,82 +536,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6b4fd529af97faa4cbda80d71d7394cd
-      internalID: -599564935
+      spriteID: 3e671dc9ad6724c42897814067f771ab
+      internalID: -2129549047
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Settings_Image
+      name: Lots UI Gameplay_20
       rect:
         serializedVersion: 2
-        x: 926
-        y: 1761
-        width: 95
-        height: 93
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2717851721985be45a304ba68d5ea478
-      internalID: 1189746913
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Shop_Image
-      rect:
-        serializedVersion: 2
-        x: 134
-        y: 134
-        width: 141
-        height: 135
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 913486819e4bf1d4ea7dce3048069fc9
-      internalID: 1272555758
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bussola_Image
-      rect:
-        serializedVersion: 2
-        x: 447
-        y: 180
-        width: 185
-        height: 190
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: cdf71eab336d77a4ba464fc1142e2d38
-      internalID: -1247042279
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Planta_Image
-      rect:
-        serializedVersion: 2
-        x: 793
-        y: 135
-        width: 161
+        x: 792
+        y: 138
+        width: 162
         height: 155
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -242,8 +557,323 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 733eddfe54481c0489f485ba94158b47
-      internalID: -1329467361
+      spriteID: 5e5a71a459b4b70458ba37cc6d25a412
+      internalID: 569173115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_21
+      rect:
+        serializedVersion: 2
+        x: 960
+        y: 264
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0102f86d73fc2fd4f8247ad02119463d
+      internalID: -380485834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_22
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 246
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 77a463a36464f2a409483492dae95283
+      internalID: 857487880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_23
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 139
+        width: 123
+        height: 125
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c745f7b961b7da44cbf55f4b1d981782
+      internalID: 1231158663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_24
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 240
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 725aaeb4dc92b1c4385169926d6620f0
+      internalID: -26725681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_25
+      rect:
+        serializedVersion: 2
+        x: 978
+        y: 234
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b51e061243796241ad64653ce38af1a
+      internalID: 611676636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_26
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 168
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a696b827efe9574fb27dfa60760abf1
+      internalID: 1802088754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_27
+      rect:
+        serializedVersion: 2
+        x: 960
+        y: 150
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ec13149fa8dce94c88886e7582f77aa
+      internalID: -316899758
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_28
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 138
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d4a853d9393037d4f90d656b5bd704e0
+      internalID: 138451836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_29
+      rect:
+        serializedVersion: 2
+        x: 936
+        y: 126
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 95466a537364e7548a6b6657ce153e39
+      internalID: 1827035734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_30
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 114
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 841baeec35eaec147aad17f83fb03bcd
+      internalID: -207378613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_31
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 114
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c3782a3174487c5488ea45f7248ba735
+      internalID: -475319591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_32
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 108
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5bd30790ee1c5934abdd27ee5d039b65
+      internalID: 1945722752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_33
+      rect:
+        serializedVersion: 2
+        x: 834
+        y: 108
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d30ec0f5a35342145b21f41541a56e96
+      internalID: -1479823394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_34
+      rect:
+        serializedVersion: 2
+        x: 864
+        y: 102
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1c8c259da13cfab47a9b8e0ab7964788
+      internalID: 1269952935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Lots UI Gameplay_35
+      rect:
+        serializedVersion: 2
+        x: 876
+        y: 102
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 03116662af23ed0499baae6f6e238d09
+      internalID: -750649671
       vertices: []
       indices: 
       edges: []
@@ -251,7 +881,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: c04a9b038e3fcd84c9c7241199315c07
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -259,12 +889,42 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      BackButton_Image: -117806262
-      Bussola_Image: -1247042279
-      Planta_Image: -1329467361
-      Separador_Image: -599564935
-      Settings_Image: 1189746913
-      Shop_Image: 1272555758
+      Lots UI Gameplay_0: -393723279
+      Lots UI Gameplay_1: -18982271
+      Lots UI Gameplay_10: 152068466
+      Lots UI Gameplay_11: -801566895
+      Lots UI Gameplay_12: 1771530041
+      Lots UI Gameplay_13: 1856886637
+      Lots UI Gameplay_14: -2001160437
+      Lots UI Gameplay_15: 90268343
+      Lots UI Gameplay_16: -1182360799
+      Lots UI Gameplay_17: -889156959
+      Lots UI Gameplay_18: -1363111664
+      Lots UI Gameplay_19: -2129549047
+      Lots UI Gameplay_2: -1541573450
+      Lots UI Gameplay_20: 569173115
+      Lots UI Gameplay_21: -380485834
+      Lots UI Gameplay_22: 857487880
+      Lots UI Gameplay_23: 1231158663
+      Lots UI Gameplay_24: -26725681
+      Lots UI Gameplay_25: 611676636
+      Lots UI Gameplay_26: 1802088754
+      Lots UI Gameplay_27: -316899758
+      Lots UI Gameplay_28: 138451836
+      Lots UI Gameplay_29: 1827035734
+      Lots UI Gameplay_3: -1649996333
+      Lots UI Gameplay_30: -207378613
+      Lots UI Gameplay_31: -475319591
+      Lots UI Gameplay_32: 1945722752
+      Lots UI Gameplay_33: -1479823394
+      Lots UI Gameplay_34: 1269952935
+      Lots UI Gameplay_35: -750649671
+      Lots UI Gameplay_4: -2051490275
+      Lots UI Gameplay_5: 1263816373
+      Lots UI Gameplay_6: 434932989
+      Lots UI Gameplay_7: 1577612777
+      Lots UI Gameplay_8: 233388365
+      Lots UI Gameplay_9: 1115776683
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
