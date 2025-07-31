@@ -344,6 +344,25 @@ public class SceneFlowManager : MonoBehaviour
     ShowFeedback("Todos os painéis foram fechados.");
 }
 
+public void ToggleShopPanel()
+{
+    if (shopPanel == null || shopButton == null) return;
+
+    bool isActive = shopPanel.activeSelf;
+
+    if (isActive)
+    {
+        // Se está aberto, fecha e mostra o botão
+        shopPanel.SetActive(false);
+        shopButton.gameObject.SetActive(true);
+    }
+    else
+    {
+        // Se está fechado, abre e oculta o botão
+        shopPanel.SetActive(true);
+        shopButton.gameObject.SetActive(false);
+    }
+}
 
     #endregion
 
