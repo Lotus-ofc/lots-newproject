@@ -18,7 +18,6 @@ public class SceneFlowManager : MonoBehaviour
     public Canvas gameplayCanvas;
     public Canvas mainMenuCanvas;
 
-
     [Header("Feedback")]
     public TextMeshProUGUI mensagemFeedback;
 
@@ -62,6 +61,15 @@ public class SceneFlowManager : MonoBehaviour
     private bool isRegisterPasswordVisible;
     private bool isRegisterConfirmPasswordVisible;
     private Coroutine feedbackCoroutine;
+
+    [Header("Painéis gameplay")]
+    public GameObject seasonsPanel;
+    public GameObject inventoryPanel;
+    public GameObject shopPanel;
+
+    [Header("Botões Extras")]
+    public Button seasonButton;
+    public Button closePanelsButton;
 
     private void Awake()
     {
@@ -114,6 +122,10 @@ public class SceneFlowManager : MonoBehaviour
         registerTogglePasswordVisibilityButton1?.onClick.AddListener(() => TogglePasswordVisibility(registerPasswordInput, ref isRegisterPasswordVisible, registerTogglePasswordImage1));
         registerTogglePasswordVisibilityButton2?.onClick.AddListener(() => TogglePasswordVisibility(registerConfirmPasswordInput, ref isRegisterConfirmPasswordVisible, registerTogglePasswordImage2));
         logoutButton?.onClick.AddListener(OnLogoutButtonClicked);
+
+        // Novos botões extras
+        seasonButton?.onClick.AddListener(ToggleSeasonsPanel);
+        closePanelsButton?.onClick.AddListener(CloseAllPanels);
     }
 
     private void ShowOnlyPanel(GameObject panel)
@@ -222,10 +234,9 @@ public class SceneFlowManager : MonoBehaviour
     }
 
     public void ShowLoginPanel()
-{
-    ShowOnlyPanel(loginPanel);
-}
-
+    {
+        ShowOnlyPanel(loginPanel);
+    }
 
     #endregion
 
@@ -291,6 +302,35 @@ public class SceneFlowManager : MonoBehaviour
 
     #endregion
 
+    #region Botões Extras
+
+    /// <summary>
+    /// Abre ou fecha o painel de estações e oculta/mostra o botão.
+    /// </summary>
+    public void ToggleSeasonsPanel()
+    {
+        if (seasonsPanel == null || seasonButton == null) return;
+
+        bool isActive = seasonsPanel.activeSelf;
+        seasonsPanel.SetActive(!isActive);
+        seasonButton.gameObject.SetActive(isActive); // se estava aberto, mostra o botão
+    }
+
+    /// <summary>
+    /// Fecha todos os painéis extras: inventory, shop e seasons.
+    /// </summary>
+    public void CloseAllPanels()
+    {
+        inventoryPanel?.SetActive(false);
+        shopPanel?.SetActive(false);
+        seasonsPanel?.SetActive(false);
+
+        // Garante que o botão de estações reapareça
+        if (seasonButton != null) seasonButton.gameObject.SetActive(true);
+    }
+
+    #endregion
+
     #region Firebase Events
 
     private void OnFirebaseAuthFailed(string msg)
@@ -310,19 +350,12 @@ public class SceneFlowManager : MonoBehaviour
         ShowOnlyPanel(loadingPanel);
         yield return new WaitForSeconds(4.6f);
 
-        // Desativa main menu canvas
         mainMenuCanvas?.gameObject.SetActive(false);
-
-        // Ativa gameplay canvas
         gameplayCanvas?.gameObject.SetActive(true);
-
-        // Ativa painel "Aperte para jogar"
         pressToPlayPanel?.SetActive(true);
 
         ShowFeedback("Login bem-sucedido! Aperte para jogar!");
     }
-
-
 
     private void OnFirebaseLogout()
     {
