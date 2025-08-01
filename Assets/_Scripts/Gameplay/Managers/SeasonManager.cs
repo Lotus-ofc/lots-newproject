@@ -50,39 +50,41 @@ public class SeasonManager : MonoBehaviour
     }
 
     public void TryChangeSeason(Season newSeason)
-{
-    DateTime now = DateTime.UtcNow;
-    TimeSpan diff = now - lastChangeDate;
-
-    if (diff.TotalDays >= daysPerSeason)
     {
-        currentSeason = newSeason;
-        lastChangeDate = now;
-        SaveSeasonData();
+        DateTime now = DateTime.UtcNow;
+        TimeSpan diff = now - lastChangeDate;
 
-        ShopManager.Instance?.SetSeason(currentSeason);
-
-        string feedbackText = newSeason switch
+        if (diff.TotalDays >= daysPerSeason)
         {
-            Season.Spring => "🌸 Olá Primavera",
-            Season.Summer => "☀️ Olá Verão",
-            Season.Autumn => "🍂 Olá Outono",
-            Season.Winter => "❄️ Olá Inverno",
-            _ => $"Olá {newSeason}"
-        };
+            currentSeason = newSeason;
+            lastChangeDate = now;
+            SaveSeasonData();
 
-        Debug.Log(feedbackText);
-        SceneFlowManager.Instance?.ShowFeedback(feedbackText);
-    }
-    else
-    {
-        int daysLeft = Mathf.CeilToInt((float)(daysPerSeason - diff.TotalDays));
-        string feedbackText = $"Faltam {daysLeft} dia(s) para trocar de estação.";
-        Debug.Log(feedbackText);
-        SceneFlowManager.Instance?.ShowFeedback(feedbackText);
-    }
-}
+            // Atualiza sistemas conectados
+            ShopManager.Instance?.SetSeason(currentSeason);
+            EnvironmentManager.Instance?.SetSeason(currentSeason);
 
+            // Feedback visual
+            string feedbackText = newSeason switch
+            {
+                Season.Spring => "🌸 Olá Primavera",
+                Season.Summer => "☀️ Olá Verão",
+                Season.Autumn => "🍂 Olá Outono",
+                Season.Winter => "❄️ Olá Inverno",
+                _ => $"Olá {newSeason}"
+            };
+
+            Debug.Log(feedbackText);
+            SceneFlowManager.Instance?.ShowFeedback(feedbackText);
+        }
+        else
+        {
+            int daysLeft = Mathf.CeilToInt((float)(daysPerSeason - diff.TotalDays));
+            string feedbackText = $"Faltam {daysLeft} dia(s) para trocar de estação.";
+            Debug.Log(feedbackText);
+            SceneFlowManager.Instance?.ShowFeedback(feedbackText);
+        }
+    }
 
     private void ShowItemsForSeason(Season season)
     {
@@ -133,7 +135,9 @@ public class SeasonManager : MonoBehaviour
             SaveSeasonData();
         }
 
+        // Atualiza sistemas na inicialização
         ShopManager.Instance?.SetSeason(currentSeason);
+        EnvironmentManager.Instance?.SetSeason(currentSeason);
         ShowItemsForSeason(currentSeason);
     }
 
