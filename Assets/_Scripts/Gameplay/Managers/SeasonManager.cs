@@ -1,114 +1,146 @@
-using UnityEngine;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 public class SeasonManager : MonoBehaviour
 {
     public static SeasonManager Instance;
 
     [Header("Configuração")]
-    public Season currentSeason = Season.Spring;   // Estação inicial padrão
-    public int daysPerSeason = 15;                 // Dias até trocar de estação
-    private int currentDay = 1;
+    public Season currentSeason = Season.Spring;
+    public int daysPerSeason = 15; // Dias reais para poder trocar
 
+    private DateTime lastChangeDate;
     private string savePath;
+
+    private List<SeasonItems> seasonItemsList; // Lista carregada do JSON
 
     private void Awake()
     {
         if (Instance == null)
             Instance = this;
         else
+        {
             Destroy(gameObject);
+            return;
+        }
 
+        DontDestroyOnLoad(gameObject);
         savePath = Path.Combine(Application.persistentDataPath, "seasonData.json");
 
         LoadSeasonData();
+        LoadSeasonItems();
     }
 
-    /// <summary>
-    /// Chame esse método quando passar um dia no jogo
-    /// </summary>
-    public void NextDay()
+    private void LoadSeasonItems()
     {
-        currentDay++;
-
-        if (currentDay > daysPerSeason)
+        TextAsset jsonFile = Resources.Load<TextAsset>("Json/SeasonData");
+        if (jsonFile != null)
         {
-            currentDay = 1;
-            CycleToNextSeason();
+            SeasonData data = JsonUtility.FromJson<SeasonData>(jsonFile.text);
+            seasonItemsList = data.seasons;
+            Debug.Log("Itens da estação carregados com sucesso.");
         }
-
-        SaveSeasonData();
+        else
+        {
+            Debug.LogError("Arquivo JSON não encontrado em Resources/Json/SeasonData.json");
+            seasonItemsList = new List<SeasonItems>();
+        }
     }
 
-    /// <summary>
-    /// Troca automaticamente para a próxima estação
-    /// </summary>
-    private void CycleToNextSeason()
-    {
-        currentSeason = (Season)(((int)currentSeason + 1) % 4); // Loop: Spring→Summer→Autumn→Winter→Spring
+    public void TryChangeSeason(Season newSeason)
+{
+    DateTime now = DateTime.UtcNow;
+    TimeSpan diff = now - lastChangeDate;
 
-        // Atualiza loja para nova estação
-        ShopManager.Instance?.SetSeason(currentSeason);
-
-        // Se quiser, atualiza plantas, clima etc. aqui
-        Debug.Log("Nova estação: " + currentSeason);
-    }
-
-    /// <summary>
-    /// Trocar estação manualmente (ex.: botão de debug ou opção do jogador)
-    /// </summary>
-    public void SetSeasonManually(Season newSeason)
+    if (diff.TotalDays >= daysPerSeason)
     {
         currentSeason = newSeason;
-        currentDay = 1;
+        lastChangeDate = now;
+        SaveSeasonData();
 
         ShopManager.Instance?.SetSeason(currentSeason);
 
-        SaveSeasonData();
+        string feedbackText = newSeason switch
+        {
+            Season.Spring => "🌸 Olá Primavera",
+            Season.Summer => "☀️ Olá Verão",
+            Season.Autumn => "🍂 Olá Outono",
+            Season.Winter => "❄️ Olá Inverno",
+            _ => $"Olá {newSeason}"
+        };
+
+        Debug.Log(feedbackText);
+        SceneFlowManager.Instance?.ShowFeedback(feedbackText);
+    }
+    else
+    {
+        int daysLeft = Mathf.CeilToInt((float)(daysPerSeason - diff.TotalDays));
+        string feedbackText = $"Faltam {daysLeft} dia(s) para trocar de estação.";
+        Debug.Log(feedbackText);
+        SceneFlowManager.Instance?.ShowFeedback(feedbackText);
+    }
+}
+
+
+    private void ShowItemsForSeason(Season season)
+    {
+        if (seasonItemsList == null) return;
+
+        var seasonData = seasonItemsList.Find(s => s.season == season);
+        if (seasonData != null)
+        {
+            Debug.Log($"Itens da estação {season}:");
+            foreach (var item in seasonData.items)
+            {
+                Debug.Log($"- {item.itemName} (Tipo {item.itemType}) Preço: {item.price} Valor: {item.value}");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Nenhum dado de itens encontrado para a estação {season}");
+        }
     }
 
-    /// <summary>
-    /// Salva a estação e dia atuais em JSON local
-    /// </summary>
     private void SaveSeasonData()
     {
-        SeasonSaveData data = new SeasonSaveData
+        var data = new SeasonSaveData
         {
             currentSeason = currentSeason,
-            currentDay = currentDay
+            lastChangeDateStr = lastChangeDate.ToString("o")
         };
 
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(savePath, json);
     }
 
-    /// <summary>
-    /// Carrega dados salvos ou usa padrão
-    /// </summary>
     private void LoadSeasonData()
     {
         if (File.Exists(savePath))
         {
             string json = File.ReadAllText(savePath);
-            SeasonSaveData data = JsonUtility.FromJson<SeasonSaveData>(json);
-
+            var data = JsonUtility.FromJson<SeasonSaveData>(json);
             currentSeason = data.currentSeason;
-            currentDay = data.currentDay;
+            lastChangeDate = DateTime.Parse(data.lastChangeDateStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
+            Debug.Log($"Dados carregados: estação {currentSeason}, última troca {lastChangeDate}");
         }
         else
         {
-            Debug.Log("Primeira vez jogando, usando estação padrão.");
+            Debug.Log("Primeira vez jogando. Usando estação padrão e data atual.");
             currentSeason = Season.Spring;
-            currentDay = 1;
+            lastChangeDate = DateTime.UtcNow;
+            SaveSeasonData();
         }
 
         ShopManager.Instance?.SetSeason(currentSeason);
+        ShowItemsForSeason(currentSeason);
     }
 
-    [System.Serializable]
+    [Serializable]
     private class SeasonSaveData
     {
         public Season currentSeason;
-        public int currentDay;
+        public string lastChangeDateStr;
     }
 }

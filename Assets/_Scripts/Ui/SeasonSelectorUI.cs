@@ -10,15 +10,9 @@ public class SeasonSelectorUI : MonoBehaviour
 
     private void Start()
     {
-        btnSpring.onClick.AddListener(() => SelectSeason(Season.Spring));
-        btnSummer.onClick.AddListener(() => SelectSeason(Season.Summer));
-        btnAutumn.onClick.AddListener(() => SelectSeason(Season.Autumn));
-        btnWinter.onClick.AddListener(() => SelectSeason(Season.Winter));
-    }
-
-    private void SelectSeason(Season season)
-    {
-        SeasonManager.Instance.SetSeasonManually(season);
-        Debug.Log("Estação escolhida: " + season);
+        btnSpring.onClick.AddListener(() => SeasonManager.Instance.TryChangeSeason(Season.Spring));
+        btnSummer.onClick.AddListener(() => SeasonManager.Instance.TryChangeSeason(Season.Summer));
+        btnAutumn.onClick.AddListener(() => SeasonManager.Instance.TryChangeSeason(Season.Autumn));
+        btnWinter.onClick.AddListener(() => SeasonManager.Instance.TryChangeSeason(Season.Winter));
     }
 }

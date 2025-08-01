@@ -11,7 +11,7 @@ public class SeasonData
 public class SeasonItems
 {
     public Season season;           // Enum: Spring, Summer, Autumn, Winter
-    public List<ItemData> items;    // Itens da estação
+    public List<ItemData> items;
 }
 
 // Enum que representa as estações
