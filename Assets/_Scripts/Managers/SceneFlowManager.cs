@@ -75,6 +75,11 @@ public class SceneFlowManager : MonoBehaviour
     public Button inventoryButton;
     public Button shopButton;
 
+    [Header("Selection")]
+    public GameObject selectionPanel;
+    public Button selectionButton;
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -126,6 +131,8 @@ public class SceneFlowManager : MonoBehaviour
         registerTogglePasswordVisibilityButton1?.onClick.AddListener(() => TogglePasswordVisibility(registerPasswordInput, ref isRegisterPasswordVisible, registerTogglePasswordImage1));
         registerTogglePasswordVisibilityButton2?.onClick.AddListener(() => TogglePasswordVisibility(registerConfirmPasswordInput, ref isRegisterConfirmPasswordVisible, registerTogglePasswordImage2));
         logoutButton?.onClick.AddListener(OnLogoutButtonClicked);
+        selectionButton?.onClick.AddListener(ToggleSelectionPanel);
+
 
         // Botões gameplay
         seasonButton?.onClick.AddListener(ToggleSeasonsPanel);
@@ -334,11 +341,14 @@ public class SceneFlowManager : MonoBehaviour
     if (inventoryPanel != null) inventoryPanel.SetActive(false);
     if (shopPanel != null) shopPanel.SetActive(false);
     if (seasonsPanel != null) seasonsPanel.SetActive(false);
-
+    if (selectionPanel != null) selectionPanel.SetActive(false);
+    
     // Reativa todos os botões de gameplay
     if (inventoryButton != null) inventoryButton.gameObject.SetActive(true);
     if (seasonButton != null) seasonButton.gameObject.SetActive(true);
     if (shopButton != null) shopButton.gameObject.SetActive(true);
+    if (selectionButton != null) selectionButton.gameObject.SetActive(true);
+
 
     // (Opcional) Feedback visual se quiser
     ShowFeedback("Todos os painéis foram fechados.");
@@ -363,6 +373,27 @@ public void ToggleShopPanel()
         shopButton.gameObject.SetActive(false);
     }
 }
+
+public void ToggleSelectionPanel()
+{
+    if (selectionPanel == null || selectionButton == null) return;
+
+    bool isActive = selectionPanel.activeSelf;
+
+    if (isActive)
+    {
+        // Fecha painel e mostra o botão
+        selectionPanel.SetActive(false);
+        selectionButton.gameObject.SetActive(true);
+    }
+    else
+    {
+        // Abre painel e oculta o botão
+        selectionPanel.SetActive(true);
+        selectionButton.gameObject.SetActive(false);
+    }
+}
+
 
     #endregion
 
