@@ -126,7 +126,7 @@ public class FirebaseManager : MonoBehaviour
                     // você pode adicionar um novo evento OnRegisterSuccess.
                     // Por ora, confiaremos no fluxo AuthStateChanged -> OnAuthSuccess
                     // ou no feedback manual que o SceneFlowManager pode exibir após o OnRegisterButtonClicked.
-                    SceneFlowManager.Instance?.ShowLoginPanel(); // Redireciona para o login
+                    SceneFlowManager.Instance.ShowOnlyPanel(SceneFlowManager.Instance.loginPanel); // Redireciona para o login
                     SceneFlowManager.Instance?.ShowFeedback("Usuário registrado com sucesso! Faça login."); // Feedback manual
                 }
             });

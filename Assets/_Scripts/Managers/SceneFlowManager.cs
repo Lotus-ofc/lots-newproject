@@ -7,19 +7,25 @@ public class SceneFlowManager : MonoBehaviour
 {
     public static SceneFlowManager Instance;
 
-    [Header("Painéis")]
+    // --- UI Elements ---
+    #region UI Elements
+    [Header("Panels")]
     public GameObject loginPanel;
     public GameObject registerPanel;
     public GameObject mainMenuPanel;
     public GameObject pressToPlayPanel;
     public GameObject loadingPanel;
+    public GameObject seasonsPanel;
+    public GameObject inventoryPanel;
+    public GameObject shopPanel;
+    public GameObject selectionPanel;
 
-    [Header("Canvas")]
+    [Header("Canvases")]
     public Canvas gameplayCanvas;
     public Canvas mainMenuCanvas;
 
     [Header("Feedback")]
-    public TextMeshProUGUI mensagemFeedback;
+    public TextMeshProUGUI feedbackText;
 
     [Header("Login")]
     public TMP_InputField loginEmailInput;
@@ -50,36 +56,38 @@ public class SceneFlowManager : MonoBehaviour
     [Header("Logout")]
     public Button logoutButton;
 
-    [Header("Press To Play")]
+    [Header("Gameplay Buttons")]
     public Button playButton;
+    public Button seasonButton;
+    public Button inventoryButton;
+    public Button shopButton;
+    public Button closePanelsButton;
+    public Button backFromSeasonButton;
+    public Button backFromInventoryButton;
+    public Button backFromShopButton;
+    public Button selectionButton;
 
     [Header("Sprites")]
     public Sprite eyeOpenSprite;
     public Sprite eyeClosedSprite;
+    #endregion
 
+    // --- Private Fields ---
+    #region Private Fields
     private bool isLoginPasswordVisible;
     private bool isRegisterPasswordVisible;
     private bool isRegisterConfirmPasswordVisible;
+
     private Coroutine feedbackCoroutine;
 
-    [Header("Painéis gameplay")]
-    public GameObject seasonsPanel;
-    public GameObject inventoryPanel;
-    public GameObject shopPanel;
+    private Coroutine shopPanelCoroutine;
+    private Coroutine inventoryPanelCoroutine;
+    private Coroutine seasonsPanelCoroutine;
+    private Coroutine selectionPanelCoroutine;
+    #endregion
 
-    [Header("Botão para voltar")]
-    public Button closePanelsButton;
-
-    [Header("Botões Gameplay")]
-    public Button seasonButton;
-    public Button inventoryButton;
-    public Button shopButton;
-
-    [Header("Selection")]
-    public GameObject selectionPanel;
-    public Button selectionButton;
-
-
+    // --- MonoBehaviour Methods ---
+    #region MonoBehaviour Methods
     private void Awake()
     {
         if (Instance == null)
@@ -87,15 +95,18 @@ public class SceneFlowManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else Destroy(gameObject);
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Start()
     {
-        mensagemFeedback?.gameObject.SetActive(false);
+        feedbackText?.gameObject.SetActive(false);
         loadingPanel?.SetActive(false);
         SetupButtonEvents();
-        ResetFields();
+        ResetInputFields();
         ShowOnlyPanel(loadingPanel);
     }
 
@@ -118,30 +129,44 @@ public class SceneFlowManager : MonoBehaviour
             FirebaseManager.Instance.OnLogout -= OnFirebaseLogout;
         }
     }
+    #endregion
 
+    // --- Panel & Scene Flow Management ---
+    #region Panel & Scene Flow Management
     private void SetupButtonEvents()
     {
-        playButton?.onClick.AddListener(ShowGameplayPanel);
+        // Main Menu
         loginButton?.onClick.AddListener(OnLoginButtonClicked);
         loginBackButton?.onClick.AddListener(() => ShowOnlyPanel(mainMenuPanel));
         forgotPasswordButton?.onClick.AddListener(OnForgotPasswordClicked);
         loginTogglePasswordVisibilityButton?.onClick.AddListener(() => TogglePasswordVisibility(loginPasswordInput, ref isLoginPasswordVisible, loginTogglePasswordImage));
+        
+        // Register
         registerButton?.onClick.AddListener(OnRegisterButtonClicked);
         registerBackButton?.onClick.AddListener(() => ShowOnlyPanel(mainMenuPanel));
         registerTogglePasswordVisibilityButton1?.onClick.AddListener(() => TogglePasswordVisibility(registerPasswordInput, ref isRegisterPasswordVisible, registerTogglePasswordImage1));
         registerTogglePasswordVisibilityButton2?.onClick.AddListener(() => TogglePasswordVisibility(registerConfirmPasswordInput, ref isRegisterConfirmPasswordVisible, registerTogglePasswordImage2));
+        
+        // General
         logoutButton?.onClick.AddListener(OnLogoutButtonClicked);
+        playButton?.onClick.AddListener(ShowGameplayPanel);
+        
+        // Gameplay
         selectionButton?.onClick.AddListener(ToggleSelectionPanel);
-
-
-        // Botões gameplay
-        seasonButton?.onClick.AddListener(ToggleSeasonsPanel);
-        inventoryButton?.onClick.AddListener(ToggleInventoryPanel);
-        closePanelsButton?.onClick.AddListener(CloseAllPanelsAndShowButtons);
+        seasonButton?.onClick.AddListener(() => ToggleGameplayPanel(seasonsPanel, ref seasonsPanelCoroutine));
+        inventoryButton?.onClick.AddListener(() => ToggleGameplayPanel(inventoryPanel, ref inventoryPanelCoroutine));
+        shopButton?.onClick.AddListener(() => ToggleGameplayPanel(shopPanel, ref shopPanelCoroutine));
+        closePanelsButton?.onClick.AddListener(CloseSelectionPanel);
+        
+        // Back from panels
+        backFromSeasonButton?.onClick.AddListener(BackFromSeasonPanel);
+        backFromInventoryButton?.onClick.AddListener(BackFromInventoryPanel);
+        backFromShopButton?.onClick.AddListener(BackFromShopPanel);
     }
 
-    private void ShowOnlyPanel(GameObject panel)
+    public void ShowOnlyPanel(GameObject panel)
     {
+        // Deactivate all main panels
         loginPanel?.SetActive(false);
         registerPanel?.SetActive(false);
         mainMenuPanel?.SetActive(false);
@@ -149,19 +174,102 @@ public class SceneFlowManager : MonoBehaviour
         loadingPanel?.SetActive(false);
         gameplayCanvas?.gameObject.SetActive(false);
 
+        // Activate the requested panel
         panel?.SetActive(true);
         ClearFeedback();
     }
 
+    private void ToggleGameplayPanel(GameObject panel, ref Coroutine coroutine)
+    {
+        if (panel == null) return;
+
+        if (panel.activeSelf)
+        {
+            ClosePanelAnimated(panel, ref coroutine);
+            ShowSelectionPanel();
+        }
+        else
+        {
+            CloseAllGameplayPanels(panel);
+            OpenPanelAnimated(panel, ref coroutine);
+            HideSelectionPanel();
+        }
+    }
+
     public void ShowGameplayPanel()
     {
+        mainMenuCanvas?.gameObject.SetActive(false);
         gameplayCanvas?.gameObject.SetActive(true);
-        ClearFeedback();
+        pressToPlayPanel?.SetActive(true);
         ShowFeedback("Bem-vindo à Gameplay!");
     }
 
-    #region Login / Register / Logout
+    private void ToggleSelectionPanel()
+    {
+        if (selectionPanel == null) return;
+        selectionPanel.SetActive(!selectionPanel.activeSelf);
+    }
 
+    private void HideSelectionPanel()
+    {
+        selectionPanel?.SetActive(false);
+    }
+
+    private void ShowSelectionPanel()
+    {
+        selectionPanel?.SetActive(true);
+    }
+
+    // Novo método para fechar o painel de seleção
+public void CloseSelectionPanel()
+{
+    if (selectionPanel != null)
+    {
+        selectionPanel.SetActive(false);
+    }
+    // Você pode adicionar um feedback, se quiser
+    ShowFeedback("Painel de seleção fechado.");
+}
+
+            public void BackFromSeasonPanel()
+        {
+            ClosePanelAnimated(seasonsPanel, ref seasonsPanelCoroutine);
+            ShowSelectionPanel();
+        }
+
+        public void BackFromInventoryPanel()
+        {
+            ClosePanelAnimated(inventoryPanel, ref inventoryPanelCoroutine);
+            ShowSelectionPanel();
+        }
+
+        public void BackFromShopPanel()
+        {
+            ClosePanelAnimated(shopPanel, ref shopPanelCoroutine);
+            ShowSelectionPanel();
+        }
+
+    private void CloseAllGameplayPanels(GameObject except = null)
+    {
+        if (seasonsPanel != null && seasonsPanel.activeSelf && seasonsPanel != except)
+        {
+            ClosePanelAnimated(seasonsPanel, ref seasonsPanelCoroutine);
+        }
+
+        if (inventoryPanel != null && inventoryPanel.activeSelf && inventoryPanel != except)
+        {
+            ClosePanelAnimated(inventoryPanel, ref inventoryPanelCoroutine);
+        }
+
+        if (shopPanel != null && shopPanel.activeSelf && shopPanel != except)
+        {
+            ClosePanelAnimated(shopPanel, ref shopPanelCoroutine);
+        }
+    }
+    #endregion
+
+    // --- Login / Register / Logout Logic ---
+    #region Login / Register / Logout
     private void OnLoginButtonClicked()
     {
         ClearInputErrors();
@@ -170,7 +278,6 @@ public class SceneFlowManager : MonoBehaviour
         {
             loginEmailErrorImage?.gameObject.SetActive(string.IsNullOrEmpty(loginEmailInput.text));
             loginPasswordErrorImage?.gameObject.SetActive(string.IsNullOrEmpty(loginPasswordInput.text));
-            loginErrorImage?.gameObject.SetActive(true);
             ShowFeedback("Preencha todos os campos.");
             return;
         }
@@ -178,7 +285,6 @@ public class SceneFlowManager : MonoBehaviour
         if (!IsValidEmail(loginEmailInput.text))
         {
             loginEmailErrorImage?.gameObject.SetActive(true);
-            loginErrorImage?.gameObject.SetActive(true);
             ShowFeedback("E-mail inválido.");
             return;
         }
@@ -241,38 +347,38 @@ public class SceneFlowManager : MonoBehaviour
     private void OnLogoutButtonClicked()
     {
         FirebaseManager.Instance?.Logout();
-        ShowOnlyPanel(mainMenuPanel);
-        ShowFeedback("Você foi deslogado.");
     }
-
-    public void ShowLoginPanel()
-    {
-        ShowOnlyPanel(loginPanel);
-    }
-
     #endregion
 
-    #region Feedback / Utils
-
+    // --- Feedback & Utility Methods ---
+    #region Feedback & Utility Methods
     public void ShowFeedback(string msg)
     {
-        if (mensagemFeedback == null) return;
-        mensagemFeedback.text = msg;
-        mensagemFeedback.gameObject.SetActive(true);
-        if (feedbackCoroutine != null) StopCoroutine(feedbackCoroutine);
+        if (feedbackText == null) return;
+
+        feedbackText.text = msg;
+        feedbackText.gameObject.SetActive(true);
+
+        if (feedbackCoroutine != null)
+        {
+            StopCoroutine(feedbackCoroutine);
+        }
         feedbackCoroutine = StartCoroutine(HideFeedbackAfterSeconds(3f));
     }
 
     public void ClearFeedback()
     {
-        if (feedbackCoroutine != null) StopCoroutine(feedbackCoroutine);
-        mensagemFeedback?.gameObject.SetActive(false);
+        if (feedbackCoroutine != null)
+        {
+            StopCoroutine(feedbackCoroutine);
+        }
+        feedbackText?.gameObject.SetActive(false);
     }
 
     private IEnumerator HideFeedbackAfterSeconds(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        mensagemFeedback?.gameObject.SetActive(false);
+        feedbackText?.gameObject.SetActive(false);
     }
 
     private void TogglePasswordVisibility(TMP_InputField input, ref bool isVisible, Image icon)
@@ -293,13 +399,13 @@ public class SceneFlowManager : MonoBehaviour
         registerConfirmPasswordErrorImage?.gameObject.SetActive(false);
     }
 
-    private void ResetFields()
+    private void ResetInputFields()
     {
-        loginEmailInput.text = "";
-        loginPasswordInput.text = "";
-        registerEmailInput.text = "";
-        registerPasswordInput.text = "";
-        registerConfirmPasswordInput.text = "";
+        if (loginEmailInput != null) loginEmailInput.text = "";
+        if (loginPasswordInput != null) loginPasswordInput.text = "";
+        if (registerEmailInput != null) registerEmailInput.text = "";
+        if (registerPasswordInput != null) registerPasswordInput.text = "";
+        if (registerConfirmPasswordInput != null) registerConfirmPasswordInput.text = "";
 
         isLoginPasswordVisible = false;
         isRegisterPasswordVisible = false;
@@ -308,97 +414,20 @@ public class SceneFlowManager : MonoBehaviour
 
     private bool IsValidEmail(string email)
     {
-        try { var addr = new System.Net.Mail.MailAddress(email); return addr.Address == email; }
-        catch { return false; }
+        try 
+        {
+            var addr = new System.Net.Mail.MailAddress(email); 
+            return addr.Address == email; 
+        }
+        catch 
+        { 
+            return false; 
+        }
     }
-
     #endregion
 
-    #region Botões Gameplay
-
-    public void ToggleSeasonsPanel()
-    {
-        if (seasonsPanel == null || seasonButton == null) return;
-
-        bool isActive = seasonsPanel.activeSelf;
-        seasonsPanel.SetActive(!isActive);
-        seasonButton.gameObject.SetActive(isActive);
-    }
-
-    public void ToggleInventoryPanel()
-{
-    if (inventoryPanel == null) return;
-
-    bool isActive = inventoryPanel.activeSelf;
-    inventoryPanel.SetActive(!isActive);
-}
-
-
-
-    public void CloseAllPanelsAndShowButtons()
-{
-    // Fecha todos os painéis de gameplay, estejam ativos ou não
-    if (inventoryPanel != null) inventoryPanel.SetActive(false);
-    if (shopPanel != null) shopPanel.SetActive(false);
-    if (seasonsPanel != null) seasonsPanel.SetActive(false);
-    if (selectionPanel != null) selectionPanel.SetActive(false);
-    
-    // Reativa todos os botões de gameplay
-    if (inventoryButton != null) inventoryButton.gameObject.SetActive(true);
-    if (seasonButton != null) seasonButton.gameObject.SetActive(true);
-    if (shopButton != null) shopButton.gameObject.SetActive(true);
-    if (selectionButton != null) selectionButton.gameObject.SetActive(true);
-
-
-    // (Opcional) Feedback visual se quiser
-    ShowFeedback("Todos os painéis foram fechados.");
-}
-
-public void ToggleShopPanel()
-{
-    if (shopPanel == null || shopButton == null) return;
-
-    bool isActive = shopPanel.activeSelf;
-
-    if (isActive)
-    {
-        // Se está aberto, fecha e mostra o botão
-        shopPanel.SetActive(false);
-        shopButton.gameObject.SetActive(true);
-    }
-    else
-    {
-        // Se está fechado, abre e oculta o botão
-        shopPanel.SetActive(true);
-        shopButton.gameObject.SetActive(false);
-    }
-}
-
-public void ToggleSelectionPanel()
-{
-    if (selectionPanel == null || selectionButton == null) return;
-
-    bool isActive = selectionPanel.activeSelf;
-
-    if (isActive)
-    {
-        // Fecha painel e mostra o botão
-        selectionPanel.SetActive(false);
-        selectionButton.gameObject.SetActive(true);
-    }
-    else
-    {
-        // Abre painel e oculta o botão
-        selectionPanel.SetActive(true);
-        selectionButton.gameObject.SetActive(false);
-    }
-}
-
-
-    #endregion
-
+    // --- Firebase Event Handlers ---
     #region Firebase Events
-
     private void OnFirebaseAuthFailed(string msg)
     {
         ClearInputErrors();
@@ -416,10 +445,9 @@ public void ToggleSelectionPanel()
         ShowOnlyPanel(loadingPanel);
         yield return new WaitForSeconds(4.6f);
 
+        ShowOnlyPanel(pressToPlayPanel);
         mainMenuCanvas?.gameObject.SetActive(false);
         gameplayCanvas?.gameObject.SetActive(true);
-        pressToPlayPanel?.SetActive(true);
-
         ShowFeedback("Login bem-sucedido! Aperte para jogar!");
     }
 
@@ -428,6 +456,80 @@ public void ToggleSelectionPanel()
         ShowOnlyPanel(mainMenuPanel);
         ShowFeedback("Você foi deslogado.");
     }
+    #endregion
 
+    // --- Panel Animation ---
+    #region Panel Animation
+    private void OpenPanelAnimated(GameObject panel, ref Coroutine panelCoroutine)
+    {
+        if (panelCoroutine != null)
+        {
+            StopCoroutine(panelCoroutine);
+        }
+        panelCoroutine = StartCoroutine(AnimatePanelIn(panel));
+    }
+
+    private void ClosePanelAnimated(GameObject panel, ref Coroutine panelCoroutine)
+    {
+        if (panelCoroutine != null)
+        {
+            StopCoroutine(panelCoroutine);
+        }
+        panelCoroutine = StartCoroutine(AnimatePanelOut(panel));
+    }
+    
+    private IEnumerator AnimatePanelIn(GameObject panel)
+    {
+        if (panel == null) yield break;
+
+        panel.SetActive(true);
+        RectTransform rt = panel.GetComponent<RectTransform>();
+        if (rt == null) yield break;
+
+        float screenHeight = Screen.height;
+        Vector2 startPos = new Vector2(0, screenHeight);
+        Vector2 endPos = Vector2.zero;
+
+        float duration = 0.3f;
+        float elapsed = 0f;
+
+        rt.anchoredPosition = startPos;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            rt.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+
+        rt.anchoredPosition = endPos;
+    }
+
+    private IEnumerator AnimatePanelOut(GameObject panel)
+    {
+        if (panel == null) yield break;
+
+        RectTransform rt = panel.GetComponent<RectTransform>();
+        if (rt == null) yield break;
+
+        float screenHeight = Screen.height;
+        Vector2 startPos = rt.anchoredPosition;
+        Vector2 endPos = new Vector2(0, -screenHeight);
+
+        float duration = 0.3f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            rt.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+
+        rt.anchoredPosition = endPos;
+        panel.SetActive(false);
+    }
     #endregion
 }
